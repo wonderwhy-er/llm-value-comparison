@@ -271,8 +271,8 @@
       }
     },
     "api": {
-      "inputPer1M": 0.05,
-      "outputPer1M": 0.05,
+      "inputPer1M": 0.18,
+      "outputPer1M": 0.18,
       "source": "https://www.together.ai/pricing",
       "provider": "Together.ai"
     },
