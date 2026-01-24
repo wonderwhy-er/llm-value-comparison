@@ -957,7 +957,12 @@
           plugins: {
             tooltip: {
               callbacks: {
-                title: ctx => ctx[0].raw.name + (ctx[0].raw.estimated ? ' ⚠️' : ''),
+                title: ctx => {
+                  const d = ctx[0].raw;
+                  const typeIcon = d.type === 'api' ? '🔌 API' : d.type === 'local' ? '🖥️ Local' : '💳 Subscription';
+                  const warn = d.estimated ? ' ⚠️' : '';
+                  return `${typeIcon}: ${d.name}${warn}`;
+                },
                 label: ctx => {
                   const d = ctx.raw;
                   const lines = [`Value: ${formatNum(d.value)} tok/$`];
