@@ -214,12 +214,13 @@
                     <div style="border-left:2px solid #ff6b6b;padding-left:0.75rem">
                         <div style="color:#ff6b6b;font-weight:600;margin-bottom:0.5rem">🔌 API</div>
                         <div style="color:#888;font-size:0.65rem">
-                            Take tokens per dollar (1M ÷ price) → multiply by quality score. Simple — you pay exactly for what you use.
+                            Calculate weighted average price (75% input + 25% output, typical usage ratio) → tokens per dollar (1M ÷ weighted price) → multiply by quality score.
                         </div>
                     </div>
                 </div>
                 
                 <p style="color:#666;margin-top:1rem;font-size:0.65rem"><strong>Quality scores:</strong> Percentage benchmarks (Aider, LiveBench) use the score directly. ELO rankings are normalized to 0-100% where 1000 ELO = 0% and 1500 ELO = 100%.</p>
+                <p style="color:#666;margin-top:0.5rem;font-size:0.65rem"><strong>API pricing:</strong> Uses weighted average of input (75%) and output (25%) prices to reflect typical usage patterns where prompts are longer than responses.</p>
             </div>
             
             <!-- Calculation explanation cards -->
@@ -652,6 +653,13 @@
       return `${score}%`;
     }
     
+    // Calculate weighted average API price (3:1 input:output ratio)
+    function getWeightedApiPrice(api) {
+      const inputWeight = 0.75;  // 75% of tokens are typically input
+      const outputWeight = 0.25; // 25% of tokens are typically output
+      return (api.inputPer1M * inputWeight) + (api.outputPer1M * outputWeight);
+    }
+    
     function updateAll() {
       updateCalcCards();
       renderCalculator();
@@ -715,11 +723,13 @@
       const apiModel = DATA.models[apiId];
       if (apiModel && apiModel.api) {
         const score = getScore(apiModel, benchmarkId) || 0;
-        const tokPerDollar = 1000000 / apiModel.api.inputPer1M;
+        const weightedPrice = getWeightedApiPrice(apiModel.api);
+        const tokPerDollar = 1000000 / weightedPrice;
         const value = tokPerDollar * (normalizeScore(score, benchmarkId) / 100);
         
         document.getElementById('calcApiSteps').innerHTML = `
-          <div class="calc-step">1,000,000 ÷ $<span class="num">${apiModel.api.inputPer1M}</span>/M = <span class="result">${formatNum(tokPerDollar)}</span> tok/$</div>
+          <div class="calc-step">Weighted price: $<span class="num">${apiModel.api.inputPer1M}</span>×75% + $<span class="num">${apiModel.api.outputPer1M}</span>×25% = $<span class="result">${weightedPrice.toFixed(2)}</span>/M</div>
+          <div class="calc-step">1,000,000 ÷ $<span class="num">${weightedPrice.toFixed(2)}</span> = <span class="result">${formatNum(tokPerDollar)}</span> tok/$</div>
           <div class="calc-step"><span class="num">${formatNum(tokPerDollar)}</span> × <span class="num">${getDisplayScore(score, benchmarkId)}</span> quality = <span class="result">${formatNum(value)}</span></div>
         `;
         document.getElementById('calcApiValue').textContent = formatNum(value);
@@ -744,7 +754,8 @@
         
         // API value
         if (model.api) {
-          const tokPerDollar = 1000000 / model.api.inputPer1M;
+          const weightedPrice = getWeightedApiPrice(model.api);
+          const tokPerDollar = 1000000 / weightedPrice;
           const value = tokPerDollar * (normalizeScore(score, benchmarkId) / 100);
           const apiProvider = model.api.provider ? ` (${model.api.provider})` : '';
           results.push({
@@ -753,7 +764,7 @@
             value: value,
             score: score,
             displayScore: getDisplayScore(score, benchmarkId),
-            details: `$${model.api.inputPer1M}/M input`
+            details: `$${weightedPrice.toFixed(2)}/M avg`
           });
         }
         
@@ -848,7 +859,8 @@
         
         // API
         if (model.api && (typeFilter === 'all' || typeFilter === 'api')) {
-          const tokPerDollar = 1000000 / model.api.inputPer1M;
+          const weightedPrice = getWeightedApiPrice(model.api);
+          const tokPerDollar = 1000000 / weightedPrice;
           const normalizedPct = normalizeScore(score, benchmarkId);
           const value = tokPerDollar * (normalizedPct / 100);
           dataPoints.push({
@@ -858,8 +870,9 @@
             date: date,
             value: value,
             calc: {
-              step1: `Tokens per $: 1M ÷ $${model.api.inputPer1M} = ${formatNum(tokPerDollar)}`,
-              step2: `Quality-adjusted: ${formatNum(tokPerDollar)} × ${normalizedPct.toFixed(1)}% = ${formatNum(value)} tok/$`
+              step1: `Weighted price: $${model.api.inputPer1M}×75% + $${model.api.outputPer1M}×25% = $${weightedPrice.toFixed(2)}/M`,
+              step2: `Tokens per $: 1M ÷ $${weightedPrice.toFixed(2)} = ${formatNum(tokPerDollar)}`,
+              step3: `Quality-adjusted: ${formatNum(tokPerDollar)} × ${normalizedPct.toFixed(1)}% = ${formatNum(value)} tok/$`
             }
           });
         }
