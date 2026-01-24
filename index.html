@@ -849,7 +849,8 @@
         // API
         if (model.api && (typeFilter === 'all' || typeFilter === 'api')) {
           const tokPerDollar = 1000000 / model.api.inputPer1M;
-          const value = tokPerDollar * (normalizeScore(score, benchmarkId) / 100);
+          const normalizedPct = normalizeScore(score, benchmarkId);
+          const value = tokPerDollar * (normalizedPct / 100);
           dataPoints.push({
             name: model.name,
             provider: model.provider,
@@ -858,7 +859,7 @@
             value: value,
             calc: {
               step1: `1M ÷ $${model.api.inputPer1M} = ${formatNum(tokPerDollar)} tok/$`,
-              step2: `${formatNum(tokPerDollar)} × ${getDisplayScore(score, benchmarkId)} = ${formatNum(value)}`
+              step2: `${formatNum(tokPerDollar)} × ${normalizedPct.toFixed(1)}% = ${formatNum(value)} tok/$`
             }
           });
         }
@@ -868,7 +869,8 @@
           const perf = model.local[hwId];
           const tokPerDay = perf.tokensPerSec * 3600 * hours;
           const tokTotal = tokPerDay * 365 * years;
-          const adjusted = tokTotal * (normalizeScore(score, benchmarkId) / 100);
+          const normalizedPct = normalizeScore(score, benchmarkId);
+          const adjusted = tokTotal * (normalizedPct / 100);
           const value = adjusted / hw.price;
           dataPoints.push({
             name: `${model.name} (local)`,
@@ -877,10 +879,11 @@
             date: date,
             value: value,
             calc: {
-              step1: `${perf.tokensPerSec} tok/s × 3600 × ${hours}h = ${formatNum(tokPerDay)}/day`,
+              step1: `${perf.tokensPerSec} tok/s × ${hours}h/day = ${formatNum(tokPerDay)}/day`,
               step2: `${formatNum(tokPerDay)} × 365 × ${years}y = ${formatNum(tokTotal)}`,
-              step3: `${formatNum(tokTotal)} × ${getDisplayScore(score, benchmarkId)} = ${formatNum(adjusted)}`,
-              step4: `${formatNum(adjusted)} ÷ $${hw.price} = ${formatNum(value)}`
+              step3: `$${hw.price} hardware cost`,
+              step4: `${formatNum(tokTotal)} × ${normalizedPct.toFixed(1)}% = ${formatNum(adjusted)}`,
+              step5: `${formatNum(adjusted)} ÷ $${hw.price} = ${formatNum(value)} tok/$`
             }
           });
         }
@@ -894,7 +897,7 @@
             const adjusted = tokTotal * (normalizeScore(score, benchmarkId) / 100);
             const value = adjusted / cost;
             dataPoints.push({
-              name: `${sub.name}`,
+              name: `${sub.name} → ${model.name}`,
               provider: model.provider,
               type: 'subscription',
               date: date,
@@ -902,9 +905,9 @@
               estimated: sub.confidence === 'low',
               calc: {
                 step1: `${formatNum(sub.tokensPerDay)}/day × 365 × ${years}y = ${formatNum(tokTotal)}`,
-                step2: `${formatNum(tokTotal)} × ${getDisplayScore(score, benchmarkId)} = ${formatNum(adjusted)}`,
-                step3: `$${sub.monthlyPrice}/mo × 12 × ${years}y = $${cost}`,
-                step4: `${formatNum(adjusted)} ÷ $${cost} = ${formatNum(value)}`
+                step2: `$${sub.monthlyPrice}/mo × 12 × ${years}y = $${cost}`,
+                step3: `${formatNum(tokTotal)} × ${normalizeScore(score, benchmarkId).toFixed(1)}% = ${formatNum(adjusted)}`,
+                step4: `${formatNum(adjusted)} ÷ $${cost} = ${formatNum(value)} tok/$`
               }
             });
           });
