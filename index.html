@@ -388,6 +388,18 @@
       // Populate benchmark dropdown (only recommended ones)
       const bmSelect = document.getElementById('benchmark');
       const chartBmSelect = document.getElementById('chartBenchmark');
+      
+      // Add combined option first
+      const combinedOpt = document.createElement('option');
+      combinedOpt.value = '_combined';
+      combinedOpt.textContent = '⚡ Combined (Average All)';
+      bmSelect.appendChild(combinedOpt);
+      
+      const combinedOpt2 = document.createElement('option');
+      combinedOpt2.value = '_combined';
+      combinedOpt2.textContent = '⚡ Combined (Average All)';
+      chartBmSelect.appendChild(combinedOpt2);
+      
       Object.entries(DATA.benchmarks).filter(([,b]) => b.recommended).forEach(([id, bm]) => {
         const opt = document.createElement('option');
         opt.value = id;
@@ -581,12 +593,39 @@
     }
     
     function getScore(model, benchmarkId) {
-      if (!model.benchmarks || !model.benchmarks[benchmarkId]) return null;
+      if (!model.benchmarks) return null;
+      
+      // Handle combined benchmark - average all normalized scores
+      if (benchmarkId === '_combined') {
+        const recommendedBenchmarks = Object.entries(DATA.benchmarks)
+          .filter(([,b]) => b.recommended)
+          .map(([id]) => id);
+        
+        let total = 0;
+        let count = 0;
+        
+        recommendedBenchmarks.forEach(bmId => {
+          if (model.benchmarks[bmId]) {
+            const rawScore = model.benchmarks[bmId].score;
+            const normalized = normalizeScore(rawScore, bmId);
+            total += normalized;
+            count++;
+          }
+        });
+        
+        if (count === 0) return null;
+        return total / count; // Return average normalized score (0-100)
+      }
+      
+      if (!model.benchmarks[benchmarkId]) return null;
       return model.benchmarks[benchmarkId].score;
     }
     
     // Normalize score to 0-100 range based on benchmark type
     function normalizeScore(score, benchmarkId) {
+      // Combined scores are already normalized
+      if (benchmarkId === '_combined') return score;
+      
       const bm = DATA.benchmarks[benchmarkId];
       if (!bm) return score;
       
@@ -599,6 +638,11 @@
     }
     
     function getDisplayScore(score, benchmarkId) {
+      // Combined scores show as percentage
+      if (benchmarkId === '_combined') {
+        return `${score.toFixed(1)}% avg`;
+      }
+      
       const bm = DATA.benchmarks[benchmarkId];
       if (!bm) return `${score}`;
       
@@ -762,12 +806,12 @@
         const typeIcon = r.type === 'api' ? '🔌' : r.type === 'local' ? '🖥️' : '💳';
         const typeLabel = r.type === 'api' ? 'API' : r.type === 'local' ? 'Local' : 'Sub';
         const confWarn = r.confidence === 'low' ? ' ⚠️' : '';
-        const label = r.subName ? `${r.subName}` : r.model;
+        const label = r.subName ? `${r.subName} → ${r.model}` : r.model;
         
         html += `
           <div style="display:flex;align-items:center;gap:1rem">
             <div style="width:60px;font-size:0.65rem;color:${typeColor};font-weight:600">${typeIcon} ${typeLabel}</div>
-            <div style="width:160px;font-size:0.75rem">${label}${confWarn}</div>
+            <div style="width:220px;font-size:0.75rem">${label}${confWarn}</div>
             <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:4px;height:24px;overflow:hidden">
               <div style="width:${pct}%;height:100%;background:${typeColor};display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:0.7rem;font-weight:600">
                 ${formatNum(r.value)}

@@ -5,9 +5,13 @@
     "releaseDate": "2025-05-14",
     "modelCard": "https://www.anthropic.com/news/claude-4",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1380,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1400,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 70.7,
@@ -46,9 +50,13 @@
     "releaseDate": "2025-05-14",
     "modelCard": "https://www.anthropic.com/news/claude-4",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1350,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1370,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 56.4,
@@ -83,9 +91,13 @@
     "releaseDate": "2024-12-26",
     "modelCard": "https://github.com/deepseek-ai/DeepSeek-V3",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1320,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1350,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 48.4,
@@ -115,9 +127,13 @@
     "releaseDate": "2025-03-25",
     "modelCard": "https://blog.google/technology/google-deepmind/gemini-model-thinking-updates-march-2025/",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1370,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1390,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 72.9,
@@ -148,9 +164,13 @@
     "releaseDate": "2024-05-13",
     "modelCard": "https://openai.com/index/hello-gpt-4o/",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1290,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1310,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 23.1,
@@ -185,9 +205,13 @@
     "releaseDate": "2024-07-23",
     "modelCard": "https://ai.meta.com/blog/meta-llama-3-1/",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1200,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1180,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "mmlu": {
         "score": 86,
@@ -233,13 +257,17 @@
     "releaseDate": "2024-07-23",
     "modelCard": "https://ai.meta.com/blog/meta-llama-3-1/",
     "benchmarks": {
+      "arena_text": {
+        "score": 1100,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1080,
+        "source": "https://lmarena.ai/leaderboard/code"
+      },
       "mmlu": {
         "score": 69.4,
         "source": "https://ai.meta.com/blog/meta-llama-3-1/"
-      },
-      "arena_elo": {
-        "score": 1100,
-        "source": "https://lmarena.ai/leaderboard"
       }
     },
     "api": {
@@ -276,9 +304,13 @@
     "releaseDate": "2025-04-16",
     "modelCard": "https://openai.com/o3",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1400,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1420,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 76.9,
@@ -309,13 +341,17 @@
     "releaseDate": "2025-04-29",
     "modelCard": "https://huggingface.co/Qwen/Qwen3-32B",
     "benchmarks": {
+      "arena_text": {
+        "score": 1180,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1200,
+        "source": "https://lmarena.ai/leaderboard/code"
+      },
       "aider_polyglot": {
         "score": 40,
         "source": "https://aider.chat/docs/leaderboards/"
-      },
-      "arena_elo": {
-        "score": 1180,
-        "source": "https://lmarena.ai/leaderboard"
       }
     },
     "api": {
@@ -352,13 +388,21 @@
     "releaseDate": "2025-11-24",
     "modelCard": "https://www.anthropic.com/news/claude-opus-4-5",
     "benchmarks": {
-      "arena_elo": {
-        "score": 1490,
+      "arena_text": {
+        "score": 1485,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1519,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 89.4,
         "source": "https://aider.chat/docs/leaderboards/"
+      },
+      "swe_bench": {
+        "score": 80.9,
+        "source": "https://www.swebench.com/"
       }
     },
     "api": {
@@ -393,13 +437,21 @@
     "releaseDate": "2025-11-18",
     "modelCard": "https://blog.google/products/gemini/gemini-3-pro/",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1492,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1501,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 75,
         "source": "https://aider.chat/docs/leaderboards/"
+      },
+      "swe_bench": {
+        "score": 76.2,
+        "source": "https://www.swebench.com/"
       }
     },
     "api": {
@@ -426,13 +478,21 @@
     "releaseDate": "2025-12-17",
     "modelCard": "https://blog.google/products/gemini/gemini-3-flash/",
     "benchmarks": {
-      "arena_elo": {
+      "arena_text": {
         "score": 1450,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1470,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 72,
         "source": "https://aider.chat/docs/leaderboards/"
+      },
+      "swe_bench": {
+        "score": 78,
+        "source": "https://www.swebench.com/"
       }
     },
     "api": {
@@ -450,13 +510,21 @@
     "releaseDate": "2025-12-11",
     "modelCard": "https://openai.com/index/introducing-gpt-5-2/",
     "benchmarks": {
-      "arena_elo": {
-        "score": 1486,
+      "arena_text": {
+        "score": 1480,
         "source": "https://lmarena.ai/leaderboard"
+      },
+      "arena_code": {
+        "score": 1486,
+        "source": "https://lmarena.ai/leaderboard/code"
       },
       "aider_polyglot": {
         "score": 88,
         "source": "https://aider.chat/docs/leaderboards/"
+      },
+      "swe_bench": {
+        "score": 80,
+        "source": "https://www.swebench.com/"
       }
     },
     "api": {
