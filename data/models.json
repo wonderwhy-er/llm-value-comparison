@@ -1,0 +1,340 @@
+{
+  "claude-opus-4": {
+    "name": "Claude Opus 4",
+    "provider": "Anthropic",
+    "releaseDate": "2025-05-14",
+    "modelCard": "https://www.anthropic.com/news/claude-4",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1380,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 70.7,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 15,
+      "outputPer1M": 75,
+      "source": "https://www.anthropic.com/pricing"
+    },
+    "local": null,
+    "subscriptions": {
+      "claude_max_5x": {
+        "name": "Claude Max 5×",
+        "monthlyPrice": 100,
+        "tokensPerDay": 1000000,
+        "confidence": "low",
+        "notes": "Full Opus access with Max subscription",
+        "source": "https://www.anthropic.com/claude/max"
+      },
+      "claude_max_20x": {
+        "name": "Claude Max 20×",
+        "monthlyPrice": 200,
+        "tokensPerDay": 4000000,
+        "confidence": "low",
+        "notes": "20× Pro limits",
+        "source": "https://www.anthropic.com/claude/max"
+      }
+    }
+  },
+  "claude-sonnet-4": {
+    "name": "Claude Sonnet 4",
+    "provider": "Anthropic",
+    "releaseDate": "2025-05-14",
+    "modelCard": "https://www.anthropic.com/news/claude-4",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1350,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 56.4,
+        "source": "https://aider.chat/docs/leaderboards/"
+      },
+      "livebench": {
+        "score": 72,
+        "source": "https://livebench.ai/"
+      }
+    },
+    "api": {
+      "inputPer1M": 3,
+      "outputPer1M": 15,
+      "source": "https://www.anthropic.com/pricing"
+    },
+    "local": null,
+    "subscriptions": {
+      "claude_pro": {
+        "name": "Claude Pro",
+        "monthlyPrice": 20,
+        "tokensPerDay": 200000,
+        "confidence": "low",
+        "notes": "Estimated ~100 messages/day × 2000 tokens. Rolling 5-hour windows.",
+        "source": "https://support.anthropic.com/en/articles/8325610-how-does-the-usage-limit-work-on-claude-ai"
+      }
+    }
+  },
+  "deepseek-v3": {
+    "name": "DeepSeek V3",
+    "provider": "DeepSeek",
+    "releaseDate": "2024-12-26",
+    "modelCard": "https://github.com/deepseek-ai/DeepSeek-V3",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1320,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 48.4,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 0.27,
+      "outputPer1M": 1.1,
+      "source": "https://platform.deepseek.com/api-docs/pricing"
+    },
+    "local": {
+      "rtx_4090": {
+        "tokensPerSec": 15,
+        "quantization": "Q4_K_M",
+        "vramRequired": 80,
+        "notes": "Requires multi-GPU or heavy offloading (671B params)",
+        "source": "https://github.com/ggerganov/llama.cpp/discussions"
+      }
+    },
+    "subscriptions": null
+  },
+  "gemini-2.5-pro": {
+    "name": "Gemini 2.5 Pro",
+    "provider": "Google",
+    "releaseDate": "2025-03-25",
+    "modelCard": "https://blog.google/technology/google-deepmind/gemini-model-thinking-updates-march-2025/",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1370,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 72.9,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 1.25,
+      "outputPer1M": 10,
+      "source": "https://ai.google.dev/pricing"
+    },
+    "local": null,
+    "subscriptions": {
+      "gemini_advanced": {
+        "name": "Gemini Advanced",
+        "monthlyPrice": 20,
+        "tokensPerDay": 200000,
+        "confidence": "low",
+        "notes": "100 prompts/day limit. Deep reasoning uses 20+ simple msg equivalent.",
+        "source": "https://one.google.com/about/ai-premium"
+      }
+    }
+  },
+  "gpt-4o": {
+    "name": "GPT-4o",
+    "provider": "OpenAI",
+    "releaseDate": "2024-05-13",
+    "modelCard": "https://openai.com/index/hello-gpt-4o/",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1290,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 23.1,
+        "source": "https://aider.chat/docs/leaderboards/"
+      },
+      "mmlu": {
+        "score": 88.7,
+        "source": "https://openai.com/index/hello-gpt-4o/"
+      }
+    },
+    "api": {
+      "inputPer1M": 2.5,
+      "outputPer1M": 10,
+      "source": "https://openai.com/api/pricing/"
+    },
+    "local": null,
+    "subscriptions": {
+      "chatgpt_plus": {
+        "name": "ChatGPT Plus",
+        "monthlyPrice": 20,
+        "tokensPerDay": 1280000,
+        "confidence": "medium",
+        "notes": "160 msgs/3hr window × 8 windows × 1000 tok/msg. Research shows $0.26-0.53/M effective.",
+        "source": "https://community.openai.com/t/chatgpt-plus-user-limits-valid-for-2025/1149656"
+      }
+    }
+  },
+  "llama-3.1-70b": {
+    "name": "Llama 3.1 70B",
+    "provider": "Meta",
+    "releaseDate": "2024-07-23",
+    "modelCard": "https://ai.meta.com/blog/meta-llama-3-1/",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1200,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "mmlu": {
+        "score": 86,
+        "source": "https://ai.meta.com/blog/meta-llama-3-1/"
+      },
+      "aider_polyglot": {
+        "score": 32.5,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 0.6,
+      "outputPer1M": 0.6,
+      "source": "https://www.together.ai/pricing"
+    },
+    "local": {
+      "rtx_3090": {
+        "tokensPerSec": 25,
+        "quantization": "Q4_K_M",
+        "vramRequired": 40,
+        "notes": "Requires 2x RTX 3090 or offloading to RAM",
+        "source": "https://github.com/ggerganov/llama.cpp/discussions/4225"
+      },
+      "rtx_4090": {
+        "tokensPerSec": 45,
+        "quantization": "Q4_K_M",
+        "vramRequired": 40,
+        "source": "https://github.com/ggerganov/llama.cpp/discussions"
+      },
+      "mac_m3_max_128gb": {
+        "tokensPerSec": 18,
+        "quantization": "Q4_K_M",
+        "vramRequired": 45,
+        "source": "https://github.com/ggerganov/llama.cpp/discussions/4167"
+      }
+    },
+    "subscriptions": null
+  },
+  "llama-3.1-8b": {
+    "name": "Llama 3.1 8B",
+    "provider": "Meta",
+    "releaseDate": "2024-07-23",
+    "modelCard": "https://ai.meta.com/blog/meta-llama-3-1/",
+    "benchmarks": {
+      "mmlu": {
+        "score": 69.4,
+        "source": "https://ai.meta.com/blog/meta-llama-3-1/"
+      },
+      "arena_elo": {
+        "score": 1100,
+        "source": "https://lmarena.ai/leaderboard"
+      }
+    },
+    "api": {
+      "inputPer1M": 0.05,
+      "outputPer1M": 0.05,
+      "source": "https://www.together.ai/pricing"
+    },
+    "local": {
+      "rtx_3090": {
+        "tokensPerSec": 120,
+        "quantization": "Q4_K_M",
+        "vramRequired": 6,
+        "source": "https://github.com/ggerganov/llama.cpp/discussions/4225"
+      },
+      "rtx_4090": {
+        "tokensPerSec": 216,
+        "quantization": "Q4_K_M",
+        "vramRequired": 6,
+        "source": "https://github.com/ggerganov/llama.cpp/discussions"
+      },
+      "mac_m3_max_64gb": {
+        "tokensPerSec": 85,
+        "quantization": "Q4_K_M",
+        "vramRequired": 6,
+        "source": "https://github.com/ggerganov/llama.cpp/discussions/4167"
+      }
+    },
+    "subscriptions": null
+  },
+  "o3": {
+    "name": "o3",
+    "provider": "OpenAI",
+    "releaseDate": "2025-04-16",
+    "modelCard": "https://openai.com/o3",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1400,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 76.9,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 10,
+      "outputPer1M": 40,
+      "source": "https://openai.com/api/pricing/"
+    },
+    "local": null,
+    "subscriptions": {
+      "chatgpt_pro": {
+        "name": "ChatGPT Pro",
+        "monthlyPrice": 200,
+        "tokensPerDay": null,
+        "confidence": "low",
+        "notes": "Claims unlimited but has soft limits. OpenAI confirmed operating at loss.",
+        "source": "https://help.openai.com/en/articles/9793128-what-is-chatgpt-pro"
+      }
+    }
+  },
+  "qwen-3-32b": {
+    "name": "Qwen 3 32B",
+    "provider": "Alibaba",
+    "releaseDate": "2025-04-29",
+    "modelCard": "https://huggingface.co/Qwen/Qwen3-32B",
+    "benchmarks": {
+      "aider_polyglot": {
+        "score": 40,
+        "source": "https://aider.chat/docs/leaderboards/"
+      },
+      "arena_elo": {
+        "score": 1180,
+        "source": "https://lmarena.ai/leaderboard"
+      }
+    },
+    "api": {
+      "inputPer1M": 0.15,
+      "outputPer1M": 0.6,
+      "source": "https://www.together.ai/pricing"
+    },
+    "local": {
+      "rtx_3090": {
+        "tokensPerSec": 45,
+        "quantization": "Q4_K_M",
+        "vramRequired": 20,
+        "source": "https://github.com/ggerganov/llama.cpp/discussions"
+      },
+      "rtx_4090": {
+        "tokensPerSec": 81,
+        "quantization": "Q4_K_M",
+        "vramRequired": 20,
+        "source": "https://github.com/ggerganov/llama.cpp/discussions"
+      },
+      "mac_m3_max_64gb": {
+        "tokensPerSec": 35,
+        "quantization": "Q4_K_M",
+        "vramRequired": 22,
+        "source": "https://github.com/ggerganov/llama.cpp/discussions/4167"
+      }
+    },
+    "subscriptions": null
+  }
+}

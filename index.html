@@ -105,6 +105,39 @@
             font-size: 0.65rem; color: #666; margin-left: 0.5rem;
         }
         .edit-link:hover { color: #00ff88; }
+        
+        /* Calculator explanation cards */
+        .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        @media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }
+        .calc-card {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px; padding: 1rem;
+        }
+        .calc-card h4 { margin-bottom: 0.75rem; font-size: 0.85rem; }
+        .calc-card.local { border-color: rgba(0,255,136,0.3); }
+        .calc-card.local h4 { color: #00ff88; }
+        .calc-card.api { border-color: rgba(255,107,107,0.3); }
+        .calc-card.api h4 { color: #ff6b6b; }
+        .calc-card.sub { border-color: rgba(124,58,237,0.3); }
+        .calc-card.sub h4 { color: #7c3aed; }
+        .calc-card select {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            color: #e0e0e0; padding: 0.4rem; border-radius: 4px; font-size: 0.75rem; margin-bottom: 0.75rem;
+        }
+        .calc-steps { font-size: 0.7rem; line-height: 1.8; }
+        .calc-step { color: #888; }
+        .calc-step .num { color: #ffc800; }
+        .calc-step .result { color: #fff; }
+        .calc-final { 
+            margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .calc-final .value { font-size: 1.25rem; font-weight: 700; }
+        .calc-final .label { font-size: 0.6rem; color: #666; }
+        
+        /* Results ranking */
+        .results-section { margin-top: 1.5rem; }
+        .results-section h3 { margin-bottom: 1rem; font-size: 0.9rem; color: #888; }
     </style>
 </head>
 <body>
@@ -159,7 +192,41 @@
                 </div>
             </div>
             
-            <div id="calculatorContent">Loading data...</div>
+            <!-- Calculation explanation cards -->
+            <div class="calc-grid">
+                <div class="calc-card local">
+                    <h4>🖥️ Local</h4>
+                    <select id="calcLocal"></select>
+                    <div class="calc-steps" id="calcLocalSteps"></div>
+                    <div class="calc-final">
+                        <div class="value" style="color:#00ff88" id="calcLocalValue">-</div>
+                        <div class="label">quality-adjusted tokens per $</div>
+                    </div>
+                </div>
+                <div class="calc-card sub">
+                    <h4>💳 Subscription ⚠️</h4>
+                    <select id="calcSub"></select>
+                    <div class="calc-steps" id="calcSubSteps"></div>
+                    <div class="calc-final">
+                        <div class="value" style="color:#7c3aed" id="calcSubValue">-</div>
+                        <div class="label">quality-adjusted tokens per $</div>
+                    </div>
+                </div>
+                <div class="calc-card api">
+                    <h4>🔌 API</h4>
+                    <select id="calcApi"></select>
+                    <div class="calc-steps" id="calcApiSteps"></div>
+                    <div class="calc-final">
+                        <div class="value" style="color:#ff6b6b" id="calcApiValue">-</div>
+                        <div class="label">quality-adjusted tokens per $</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <h3>📊 All Options Ranked</h3>
+                <div id="calculatorContent">Loading data...</div>
+            </div>
         </div>
         
         <!-- TAB: CHART -->
@@ -257,25 +324,16 @@
     // Load all data from JSON files
     async function loadData() {
       try {
-        // Load index
-        const indexRes = await fetch('data/index.json');
-        const index = await indexRes.json();
+        // Load all 3 files in parallel
+        const [modelsRes, hwRes, bmRes] = await Promise.all([
+          fetch('data/models.json'),
+          fetch('data/hardware.json'),
+          fetch('data/benchmarks.json')
+        ]);
         
-        // Load hardware
-        const hwRes = await fetch('data/hardware.json');
+        DATA.models = await modelsRes.json();
         DATA.hardware = await hwRes.json();
-        
-        // Load benchmarks metadata
-        const bmRes = await fetch('data/benchmarks.json');
         DATA.benchmarks = await bmRes.json();
-        
-        // Load all models
-        const modelPromises = index.models.map(async (id) => {
-          const res = await fetch(`data/models/${id}.json`);
-          return res.json();
-        });
-        const models = await Promise.all(modelPromises);
-        models.forEach(m => { DATA.models[m.id] = m; });
         
         console.log('Data loaded:', DATA);
         init();
@@ -304,6 +362,9 @@
         opt.textContent = bm.name;
         bmSelect.appendChild(opt);
       });
+      
+      // Populate calculator dropdowns
+      populateCalcDropdowns();
       
       // Populate provider filter
       const providers = new Set();
@@ -336,7 +397,55 @@
         el.addEventListener('input', updateAll);
       });
       
+      // Hardware change repopulates local models dropdown
+      document.getElementById('hardware').addEventListener('change', () => {
+        populateCalcDropdowns();
+        updateAll();
+      });
+      
       updateAll();
+    }
+    
+    function populateCalcDropdowns() {
+      const hwId = document.getElementById('hardware').value;
+      
+      // Local models (that have perf data for this hardware)
+      const localSelect = document.getElementById('calcLocal');
+      localSelect.innerHTML = '';
+      Object.entries(DATA.models).forEach(([id, m]) => {
+        if (m.local && m.local[hwId]) {
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = `${m.name} (${m.local[hwId].tokensPerSec} tok/s)`;
+          localSelect.appendChild(opt);
+        }
+      });
+      
+      // Subscriptions
+      const subSelect = document.getElementById('calcSub');
+      subSelect.innerHTML = '';
+      Object.entries(DATA.models).forEach(([id, m]) => {
+        if (m.subscriptions) {
+          Object.entries(m.subscriptions).forEach(([subId, sub]) => {
+            const opt = document.createElement('option');
+            opt.value = `${id}|${subId}`;
+            opt.textContent = `${sub.name} ($${sub.monthlyPrice}/mo)`;
+            subSelect.appendChild(opt);
+          });
+        }
+      });
+      
+      // API models
+      const apiSelect = document.getElementById('calcApi');
+      apiSelect.innerHTML = '';
+      Object.entries(DATA.models).forEach(([id, m]) => {
+        if (m.api) {
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = `${m.name} ($${m.api.inputPer1M}/M)`;
+          apiSelect.appendChild(opt);
+        }
+      });
     }
     
     function renderDataTables() {
@@ -434,8 +543,77 @@
     }
     
     function updateAll() {
+      updateCalcCards();
       renderCalculator();
       // Chart updates only when tab is visible
+    }
+    
+    function updateCalcCards() {
+      const hwId = document.getElementById('hardware').value;
+      const hours = parseFloat(document.getElementById('hoursPerDay').value) || 16;
+      const years = parseInt(document.getElementById('periodYears').value);
+      const benchmarkId = document.getElementById('benchmark').value;
+      const hw = DATA.hardware[hwId];
+      
+      if (!hw) return;
+      
+      // LOCAL calculation
+      const localId = document.getElementById('calcLocal').value;
+      const localModel = DATA.models[localId];
+      if (localModel && localModel.local && localModel.local[hwId]) {
+        const perf = localModel.local[hwId];
+        const score = getScore(localModel, benchmarkId) || 0;
+        const tokPerDay = perf.tokensPerSec * 3600 * hours;
+        const tokTotal = tokPerDay * 365 * years;
+        const adjusted = tokTotal * (score / 100);
+        const value = adjusted / hw.price;
+        
+        document.getElementById('calcLocalSteps').innerHTML = `
+          <div class="calc-step"><span class="num">${perf.tokensPerSec}</span> tok/s × 3600 × <span class="num">${hours}</span>h = <span class="result">${formatNum(tokPerDay)}</span> tok/day</div>
+          <div class="calc-step"><span class="num">${formatNum(tokPerDay)}</span> × 365 × <span class="num">${years}</span>y = <span class="result">${formatNum(tokTotal)}</span> total</div>
+          <div class="calc-step"><span class="num">${formatNum(tokTotal)}</span> × <span class="num">${score}%</span> quality = <span class="result">${formatNum(adjusted)}</span></div>
+          <div class="calc-step"><span class="num">${formatNum(adjusted)}</span> ÷ $<span class="num">${hw.price}</span> = <span class="result">${formatNum(value)}</span></div>
+        `;
+        document.getElementById('calcLocalValue').textContent = formatNum(value);
+      }
+      
+      // SUBSCRIPTION calculation
+      const subVal = document.getElementById('calcSub').value;
+      if (subVal) {
+        const [modelId, subId] = subVal.split('|');
+        const model = DATA.models[modelId];
+        const sub = model?.subscriptions?.[subId];
+        if (sub && sub.tokensPerDay) {
+          const score = getScore(model, benchmarkId) || 0;
+          const tokTotal = sub.tokensPerDay * 365 * years;
+          const totalCost = sub.monthlyPrice * 12 * years;
+          const adjusted = tokTotal * (score / 100);
+          const value = adjusted / totalCost;
+          
+          document.getElementById('calcSubSteps').innerHTML = `
+            <div class="calc-step"><span class="num">${formatNum(sub.tokensPerDay)}</span> tok/day × 365 × <span class="num">${years}</span>y = <span class="result">${formatNum(tokTotal)}</span></div>
+            <div class="calc-step"><span class="num">${formatNum(tokTotal)}</span> × <span class="num">${score}%</span> quality = <span class="result">${formatNum(adjusted)}</span></div>
+            <div class="calc-step">$<span class="num">${sub.monthlyPrice}</span>/mo × 12 × <span class="num">${years}</span>y = $<span class="result">${totalCost}</span></div>
+            <div class="calc-step"><span class="num">${formatNum(adjusted)}</span> ÷ $<span class="num">${totalCost}</span> = <span class="result">${formatNum(value)}</span></div>
+          `;
+          document.getElementById('calcSubValue').textContent = formatNum(value);
+        }
+      }
+      
+      // API calculation
+      const apiId = document.getElementById('calcApi').value;
+      const apiModel = DATA.models[apiId];
+      if (apiModel && apiModel.api) {
+        const score = getScore(apiModel, benchmarkId) || 0;
+        const tokPerDollar = 1000000 / apiModel.api.inputPer1M;
+        const value = tokPerDollar * (score / 100);
+        
+        document.getElementById('calcApiSteps').innerHTML = `
+          <div class="calc-step">1,000,000 ÷ $<span class="num">${apiModel.api.inputPer1M}</span>/M = <span class="result">${formatNum(tokPerDollar)}</span> tok/$</div>
+          <div class="calc-step"><span class="num">${formatNum(tokPerDollar)}</span> × <span class="num">${score}%</span> quality = <span class="result">${formatNum(value)}</span></div>
+        `;
+        document.getElementById('calcApiValue').textContent = formatNum(value);
+      }
     }
     
     function renderCalculator() {
