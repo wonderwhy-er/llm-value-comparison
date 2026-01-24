@@ -336,10 +336,10 @@
     }
   },
   "qwen-3-32b": {
-    "name": "Qwen 3 32B",
+    "name": "Qwen QwQ-32B",
     "provider": "Alibaba",
     "releaseDate": "2025-04-29",
-    "modelCard": "https://huggingface.co/Qwen/Qwen3-32B",
+    "modelCard": "https://huggingface.co/Qwen/QwQ-32B",
     "benchmarks": {
       "arena_text": {
         "score": 1180,
@@ -355,8 +355,8 @@
       }
     },
     "api": {
-      "inputPer1M": 0.15,
-      "outputPer1M": 0.6,
+      "inputPer1M": 1.20,
+      "outputPer1M": 1.20,
       "source": "https://www.together.ai/pricing",
       "provider": "Together.ai"
     },
