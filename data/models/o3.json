@@ -1,0 +1,37 @@
+{
+  "id": "o3",
+  "name": "o3",
+  "provider": "OpenAI",
+  "releaseDate": "2025-04-16",
+  "modelCard": "https://openai.com/o3",
+  
+  "benchmarks": {
+    "arena_elo": {
+      "score": 1400,
+      "source": "https://lmarena.ai/leaderboard"
+    },
+    "aider_polyglot": {
+      "score": 76.9,
+      "source": "https://aider.chat/docs/leaderboards/"
+    }
+  },
+  
+  "api": {
+    "inputPer1M": 10,
+    "outputPer1M": 40,
+    "source": "https://openai.com/api/pricing/"
+  },
+  
+  "local": null,
+  
+  "subscriptions": {
+    "chatgpt_pro": {
+      "name": "ChatGPT Pro",
+      "monthlyPrice": 200,
+      "tokensPerDay": null,
+      "confidence": "low",
+      "notes": "Claims unlimited but has soft limits. OpenAI confirmed operating at loss.",
+      "source": "https://help.openai.com/en/articles/9793128-what-is-chatgpt-pro"
+    }
+  }
+}

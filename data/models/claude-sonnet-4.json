@@ -1,0 +1,49 @@
+{
+  "id": "claude-sonnet-4",
+  "name": "Claude Sonnet 4",
+  "provider": "Anthropic",
+  "releaseDate": "2025-05-14",
+  "modelCard": "https://www.anthropic.com/news/claude-4",
+  
+  "benchmarks": {
+    "arena_elo": {
+      "score": 1350,
+      "source": "https://lmarena.ai/leaderboard"
+    },
+    "aider_polyglot": {
+      "score": 56.4,
+      "source": "https://aider.chat/docs/leaderboards/"
+    },
+    "livebench": {
+      "score": 72,
+      "source": "https://livebench.ai/"
+    }
+  },
+  
+  "api": {
+    "inputPer1M": 3,
+    "outputPer1M": 15,
+    "source": "https://www.anthropic.com/pricing"
+  },
+  
+  "local": null,
+  
+  "subscriptions": {
+    "claude_pro": {
+      "name": "Claude Pro",
+      "monthlyPrice": 20,
+      "tokensPerDay": 200000,
+      "confidence": "low",
+      "notes": "Estimated ~100 messages/day × 2000 tokens. Rolling 5-hour windows.",
+      "source": "https://support.anthropic.com/en/articles/8325610-how-does-the-usage-limit-work-on-claude-ai"
+    },
+    "claude_max_5x": {
+      "name": "Claude Max 5×",
+      "monthlyPrice": 100,
+      "tokensPerDay": 1000000,
+      "confidence": "low",
+      "notes": "5× Pro limits. Estimated based on community reports.",
+      "source": "https://www.anthropic.com/claude/max"
+    }
+  }
+}

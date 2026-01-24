@@ -1,0 +1,47 @@
+{
+  "id": "qwen-3-32b",
+  "name": "Qwen 3 32B",
+  "provider": "Alibaba",
+  "releaseDate": "2025-04-29",
+  "modelCard": "https://huggingface.co/Qwen/Qwen3-32B",
+  
+  "benchmarks": {
+    "aider_polyglot": {
+      "score": 40.0,
+      "source": "https://aider.chat/docs/leaderboards/"
+    },
+    "arena_elo": {
+      "score": 1180,
+      "source": "https://lmarena.ai/leaderboard"
+    }
+  },
+  
+  "api": {
+    "inputPer1M": 0.15,
+    "outputPer1M": 0.6,
+    "source": "https://www.together.ai/pricing"
+  },
+  
+  "local": {
+    "rtx_3090": {
+      "tokensPerSec": 45,
+      "quantization": "Q4_K_M",
+      "vramRequired": 20,
+      "source": "https://github.com/ggerganov/llama.cpp/discussions"
+    },
+    "rtx_4090": {
+      "tokensPerSec": 81,
+      "quantization": "Q4_K_M",
+      "vramRequired": 20,
+      "source": "https://github.com/ggerganov/llama.cpp/discussions"
+    },
+    "mac_m3_max_64gb": {
+      "tokensPerSec": 35,
+      "quantization": "Q4_K_M",
+      "vramRequired": 22,
+      "source": "https://github.com/ggerganov/llama.cpp/discussions/4167"
+    }
+  },
+  
+  "subscriptions": null
+}

@@ -1,0 +1,67 @@
+{
+  "arena_elo": {
+    "name": "Chatbot Arena ELO",
+    "description": "Human preference ranking from 6M+ votes. Best predictor of real-world usefulness.",
+    "maxScore": null,
+    "type": "elo",
+    "higherIsBetter": true,
+    "source": "https://lmarena.ai/leaderboard",
+    "recommended": true
+  },
+  "aider_polyglot": {
+    "name": "Aider Polyglot",
+    "description": "Real-world coding benchmark across 6 languages. Only major benchmark tracking cost.",
+    "maxScore": 100,
+    "type": "percentage",
+    "higherIsBetter": true,
+    "source": "https://aider.chat/docs/leaderboards/",
+    "recommended": true
+  },
+  "livebench": {
+    "name": "LiveBench",
+    "description": "Contamination-resistant benchmark updated monthly with new questions.",
+    "maxScore": 100,
+    "type": "percentage",
+    "higherIsBetter": true,
+    "source": "https://livebench.ai/",
+    "recommended": true
+  },
+  "mmlu": {
+    "name": "MMLU",
+    "description": "Massive Multitask Language Understanding. SATURATED - top models cluster within 2-4%.",
+    "maxScore": 100,
+    "type": "percentage",
+    "higherIsBetter": true,
+    "source": "https://huggingface.co/spaces/open-llm-leaderboard",
+    "recommended": false,
+    "warning": "Saturated benchmark - no longer differentiates frontier models"
+  },
+  "humaneval": {
+    "name": "HumanEval",
+    "description": "Code generation benchmark. SATURATED - SOTA at 99.4%.",
+    "maxScore": 100,
+    "type": "percentage",
+    "higherIsBetter": true,
+    "source": "https://github.com/openai/human-eval",
+    "recommended": false,
+    "warning": "Saturated benchmark"
+  },
+  "bigcodebench": {
+    "name": "BigCodeBench",
+    "description": "Challenging code benchmark with 36% gap between human (97%) and best models (61%).",
+    "maxScore": 100,
+    "type": "percentage",
+    "higherIsBetter": true,
+    "source": "https://bigcode-bench.github.io/",
+    "recommended": true
+  },
+  "gpqa_diamond": {
+    "name": "GPQA Diamond",
+    "description": "Graduate-level science QA. Still challenging but approaching saturation at 90%.",
+    "maxScore": 100,
+    "type": "percentage",
+    "higherIsBetter": true,
+    "source": "https://github.com/idavidrein/gpqa",
+    "recommended": true
+  }
+}

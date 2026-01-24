@@ -1,0 +1,41 @@
+{
+  "id": "gpt-4o",
+  "name": "GPT-4o",
+  "provider": "OpenAI",
+  "releaseDate": "2024-05-13",
+  "modelCard": "https://openai.com/index/hello-gpt-4o/",
+  
+  "benchmarks": {
+    "arena_elo": {
+      "score": 1290,
+      "source": "https://lmarena.ai/leaderboard"
+    },
+    "aider_polyglot": {
+      "score": 23.1,
+      "source": "https://aider.chat/docs/leaderboards/"
+    },
+    "mmlu": {
+      "score": 88.7,
+      "source": "https://openai.com/index/hello-gpt-4o/"
+    }
+  },
+  
+  "api": {
+    "inputPer1M": 2.5,
+    "outputPer1M": 10,
+    "source": "https://openai.com/api/pricing/"
+  },
+  
+  "local": null,
+  
+  "subscriptions": {
+    "chatgpt_plus": {
+      "name": "ChatGPT Plus",
+      "monthlyPrice": 20,
+      "tokensPerDay": 1280000,
+      "confidence": "medium",
+      "notes": "160 msgs/3hr window × 8 windows × 1000 tok/msg. Research shows $0.26-0.53/M effective.",
+      "source": "https://community.openai.com/t/chatgpt-plus-user-limits-valid-for-2025/1149656"
+    }
+  }
+}

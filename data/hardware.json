@@ -1,0 +1,52 @@
+{
+  "rtx_3090": {
+    "name": "RTX 3090",
+    "price": 1500,
+    "vram": 24,
+    "year": 2020,
+    "source": "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090-3090ti/"
+  },
+  "rtx_4090": {
+    "name": "RTX 4090",
+    "price": 2000,
+    "vram": 24,
+    "year": 2022,
+    "source": "https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4090/"
+  },
+  "rtx_5090": {
+    "name": "RTX 5090",
+    "price": 2500,
+    "vram": 32,
+    "year": 2025,
+    "source": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/"
+  },
+  "mac_m3_max_64gb": {
+    "name": "Mac M3 Max 64GB",
+    "price": 4000,
+    "vram": 64,
+    "year": 2023,
+    "source": "https://www.apple.com/shop/buy-mac/macbook-pro"
+  },
+  "mac_m3_max_128gb": {
+    "name": "Mac M3 Max 128GB",
+    "price": 5500,
+    "vram": 128,
+    "year": 2023,
+    "source": "https://www.apple.com/shop/buy-mac/macbook-pro"
+  },
+  "mac_m4_max_128gb": {
+    "name": "Mac M4 Max 128GB",
+    "price": 5000,
+    "vram": 128,
+    "year": 2024,
+    "source": "https://www.apple.com/shop/buy-mac/macbook-pro"
+  },
+  "dual_rtx_3090": {
+    "name": "2× RTX 3090",
+    "price": 3000,
+    "vram": 48,
+    "year": 2020,
+    "notes": "Two RTX 3090s for larger models",
+    "source": "https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3090-3090ti/"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "llama-3.1-8b",
+  "name": "Llama 3.1 8B",
+  "provider": "Meta",
+  "releaseDate": "2024-07-23",
+  "modelCard": "https://ai.meta.com/blog/meta-llama-3-1/",
+  
+  "benchmarks": {
+    "mmlu": {
+      "score": 69.4,
+      "source": "https://ai.meta.com/blog/meta-llama-3-1/"
+    },
+    "arena_elo": {
+      "score": 1100,
+      "source": "https://lmarena.ai/leaderboard"
+    }
+  },
+  
+  "api": {
+    "inputPer1M": 0.05,
+    "outputPer1M": 0.05,
+    "source": "https://www.together.ai/pricing"
+  },
+  
+  "local": {
+    "rtx_3090": {
+      "tokensPerSec": 120,
+      "quantization": "Q4_K_M",
+      "vramRequired": 6,
+      "source": "https://github.com/ggerganov/llama.cpp/discussions/4225"
+    },
+    "rtx_4090": {
+      "tokensPerSec": 216,
+      "quantization": "Q4_K_M",
+      "vramRequired": 6,
+      "source": "https://github.com/ggerganov/llama.cpp/discussions"
+    },
+    "mac_m3_max_64gb": {
+      "tokensPerSec": 85,
+      "quantization": "Q4_K_M",
+      "vramRequired": 6,
+      "source": "https://github.com/ggerganov/llama.cpp/discussions/4167"
+    }
+  },
+  
+  "subscriptions": null
+}

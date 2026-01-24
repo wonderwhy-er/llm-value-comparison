@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLM Value Comparison: Local vs Cloud</title>
+    <title>LLM Value Comparison: Local vs Subscription vs API</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
-        
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
         body {
             min-height: 100vh;
             background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
@@ -17,615 +17,636 @@
             padding: 2rem;
             line-height: 1.6;
         }
-        
         h1 {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(90deg, #00ff88, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-align: center; font-size: 2rem; margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #00ff88, #7c3aed, #ff6b6b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        
-        .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-        
+        .subtitle { text-align: center; color: #888; margin-bottom: 1.5rem; font-size: 0.9rem; }
         .container { max-width: 1400px; margin: 0 auto; }
         
-        /* Global settings bar */
+        /* Tabs */
+        .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .tab {
+            padding: 0.75rem 1.5rem; cursor: pointer; color: #888;
+            border-bottom: 2px solid transparent; transition: all 0.2s;
+        }
+        .tab:hover { color: #e0e0e0; }
+        .tab.active { color: #00ff88; border-bottom-color: #00ff88; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .oss-banner {
+            background: linear-gradient(90deg, rgba(0,255,136,0.1), rgba(124,58,237,0.1));
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+            padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;
+            text-align: center; font-size: 0.8rem;
+        }
+        .oss-banner a { color: #00ff88; }
+        
+        .warning-box {
+            background: rgba(255,100,100,0.15); border: 1px solid rgba(255,100,100,0.4);
+            border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.5rem;
+            font-size: 0.75rem; color: #ffaaaa;
+        }
+        .warning-box strong { color: #ff6b6b; }
+        
         .global-settings {
-            background: rgba(255, 200, 0, 0.1);
-            border: 1px solid rgba(255, 200, 0, 0.3);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            flex-wrap: wrap;
+            background: rgba(255, 200, 0, 0.1); border: 1px solid rgba(255, 200, 0, 0.3);
+            border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 2rem;
         }
-        .global-settings label { color: #ffc800; font-weight: 600; }
-        .global-settings select {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255, 200, 0, 0.4);
-            color: #ffc800;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-family: inherit;
+        .global-settings h3 { color: #ffc800; margin-bottom: 0.75rem; font-size: 0.9rem; }
+        .settings-row { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-end; }
+        .setting-group label { display: block; font-size: 0.7rem; color: #999; margin-bottom: 0.25rem; }
+        .global-settings select, .global-settings input {
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255, 200, 0, 0.4);
+            color: #ffc800; padding: 0.4rem 0.8rem; border-radius: 6px;
+            font-family: inherit; font-size: 0.85rem;
         }
         
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
-        @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+        .chart-section {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;
+        }
+        .chart-section h2 { text-align: center; margin-bottom: 1rem; }
+        .chart-controls { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
+        .chart-controls select {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+            color: #e0e0e0; padding: 0.4rem 0.8rem; border-radius: 6px;
+            font-family: inherit; font-size: 0.85rem;
+        }
+        .chart-wrapper { position: relative; height: 500px; }
         
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 1.5rem;
+        /* Data Tables */
+        .data-table-section { margin-bottom: 2rem; }
+        .data-table-section h3 { 
+            color: #00ff88; margin-bottom: 1rem; font-size: 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
         }
-        
-        .card h2 {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .data-table {
+            width: 100%; border-collapse: collapse; font-size: 0.75rem;
+            background: rgba(255,255,255,0.02); border-radius: 8px; overflow: hidden;
         }
-        
-        .local-color { color: #00ff88; }
-        .cloud-color { color: #7c3aed; }
-        
-        .form-group { margin-bottom: 1rem; }
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 0.3rem;
+        .data-table th {
+            background: rgba(255,255,255,0.05); padding: 0.75rem;
+            text-align: left; color: #888; font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        
-        select, input[type="number"] {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            color: #e0e0e0;
-            padding: 0.6rem 1rem;
-            font-family: inherit;
-            font-size: 0.9rem;
+        .data-table td {
+            padding: 0.6rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.03);
         }
-        
-        select:focus, input:focus {
-            outline: none;
-            border-color: #00ff88;
+        .data-table tr:hover td { background: rgba(255,255,255,0.03); }
+        .data-table a { color: #88f; text-decoration: none; }
+        .data-table a:hover { text-decoration: underline; }
+        .confidence-low { color: #ff6b6b; }
+        .confidence-medium { color: #ffc800; }
+        .confidence-high { color: #00ff88; }
+        .edit-link { 
+            font-size: 0.65rem; color: #666; margin-left: 0.5rem;
         }
-        
-        .row { display: flex; gap: 1rem; }
-        .row .form-group { flex: 1; }
-        
-        /* CALCULATION BOX - the key feature */
-        .calc-box {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-top: 1.5rem;
-            font-size: 0.85rem;
-        }
-        .calc-box h3 {
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            color: #888;
-        }
-        
-        .calc-step {
-            margin-bottom: 0.75rem;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .calc-step:last-child { border-bottom: none; }
-        .calc-formula {
-            font-family: 'JetBrains Mono', monospace;
-            color: #aaa;
-        }
-        .calc-formula .num { color: #ffc800; font-weight: 600; }
-        .calc-formula .op { color: #666; }
-        .calc-result {
-            margin-top: 0.3rem;
-            font-weight: 600;
-        }
-        .calc-result.local { color: #00ff88; }
-        .calc-result.cloud { color: #7c3aed; }
-        
-        .final-value {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        .final-value .label { color: #888; font-size: 0.8rem; }
-        .final-value .value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-top: 0.25rem;
-        }
-        .final-value .unit { font-size: 0.9rem; color: #666; }
-        
-        /* Comparison */
-        .comparison-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 2rem;
-        }
-        .comparison-card h2 { text-align: center; margin-bottom: 1.5rem; }
-        
-        .bar-row { margin-bottom: 1.5rem; }
-        .bar-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-        }
-        .bar-container {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            height: 40px;
-            overflow: hidden;
-        }
-        .bar-fill {
-            height: 100%;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 12px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: width 0.5s ease;
-            min-width: 80px;
-        }
-        .bar-fill.local { background: linear-gradient(90deg, #00ff88, #00cc6a); color: #000; }
-        .bar-fill.cloud { background: linear-gradient(90deg, #7c3aed, #9f67ff); color: #fff; }
-        
-        .winner-box {
-            text-align: center;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-top: 1.5rem;
-        }
-        .winner-box.local { background: rgba(0, 255, 136, 0.1); border: 2px solid rgba(0, 255, 136, 0.3); }
-        .winner-box.cloud { background: rgba(124, 58, 237, 0.1); border: 2px solid rgba(124, 58, 237, 0.3); }
-        .winner-box.tie { background: rgba(255, 200, 0, 0.1); border: 2px solid rgba(255, 200, 0, 0.3); }
-        
-        .winner-title { font-size: 0.85rem; color: #888; }
-        .winner-name { font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0; }
-        .winner-detail { font-size: 0.9rem; opacity: 0.8; }
+        .edit-link:hover { color: #00ff88; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>⚡ LLM Value Comparison</h1>
-        <p class="subtitle">Local Hardware vs Cloud Subscriptions — See exactly how the math works</p>
+        <p class="subtitle">Quality-Adjusted Tokens per Dollar — Local vs Subscription vs API</p>
         
-        <!-- GLOBAL SETTINGS -->
-        <div class="global-settings">
-            <div>
-                <label>⏱️ Comparison Period:</label>
-                <select id="periodYears">
-                    <option value="1">1 Year</option>
-                    <option value="2" selected>2 Years</option>
-                    <option value="3">3 Years</option>
-                    <option value="4">4 Years</option>
-                    <option value="5">5 Years</option>
-                </select>
-            </div>
-            <div style="color: #888; font-size: 0.85rem;">
-                Both local hardware cost and cloud subscription are calculated over the same period for fair comparison.
-            </div>
+        <div class="oss-banner">
+            📖 <strong>Open Source (MIT)</strong> — 
+            <a href="https://github.com/wonderwhy-er/llm-value-comparison" target="_blank">GitHub</a> | 
+            Contribute model data via Pull Request
         </div>
         
-        <div class="grid">
-            <!-- LOCAL SETUP -->
-            <div class="card">
-                <h2><span class="local-color">🖥️</span> Local Setup</h2>
-                
-                <div class="form-group">
-                    <label>Hardware</label>
-                    <select id="hardware">
-                        <option value="2500" data-speed="1.0">RTX 3090 Build ($2,500)</option>
-                        <option value="4000" data-speed="1.8">RTX 4090 Build ($4,000)</option>
-                        <option value="5500" data-speed="2.5">RTX 5090 Build ($5,500)</option>
-                        <option value="4000" data-speed="0.7">Mac M3 Max 64GB ($4,000)</option>
-                        <option value="6000" data-speed="0.9">Mac M4 Max 128GB ($6,000)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Custom Hardware Cost ($) — optional override</label>
-                    <input type="number" id="customHardware" placeholder="e.g. 3000">
-                </div>
-                
-                <div class="form-group">
-                    <label>Local Model</label>
-                    <select id="localModel">
-                        <option value="100" data-quality="68">GPT-OSS-20B (100 tok/s, 68% quality)</option>
-                        <option value="60" data-quality="72">GLM-4.7 Flash (60 tok/s, 72% quality)</option>
-                        <option value="25" data-quality="82">Llama 3.1 70B Q4 (25 tok/s, 82% quality)</option>
-                        <option value="45" data-quality="78">Qwen 2.5 32B (45 tok/s, 78% quality)</option>
-                        <option value="80" data-quality="65">Mistral 7B (80 tok/s, 65% quality)</option>
-                    </select>
-                </div>
-                
-                <div class="row">
-                    <div class="form-group">
-                        <label>Custom tok/sec</label>
-                        <input type="number" id="customSpeed" placeholder="e.g. 100">
+        <!-- TABS -->
+        <div class="tabs">
+            <div class="tab active" data-tab="calculator">📊 Calculator</div>
+            <div class="tab" data-tab="chart">📈 Timeline Chart</div>
+            <div class="tab" data-tab="data">📋 Raw Data</div>
+        </div>
+        
+        <!-- TAB: CALCULATOR -->
+        <div id="tab-calculator" class="tab-content active">
+            <div class="warning-box">
+                <strong>⚠️ Subscription data is estimated!</strong> 
+                Providers don't publish exact token limits. See Data tab for sources and confidence levels.
+            </div>
+            
+            <div class="global-settings">
+                <h3>⚙️ Settings</h3>
+                <div class="settings-row">
+                    <div class="setting-group">
+                        <label>Hardware (for Local)</label>
+                        <select id="hardware"></select>
                     </div>
-                    <div class="form-group">
-                        <label>Custom Quality %</label>
-                        <input type="number" id="customLocalQuality" placeholder="e.g. 70" min="0" max="100">
+                    <div class="setting-group">
+                        <label>Hours/day (Local)</label>
+                        <input type="number" id="hoursPerDay" value="16" min="1" max="24" style="width: 70px;">
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Hours of use per day</label>
-                    <input type="number" id="hoursPerDay" value="8" min="1" max="24">
-                </div>
-                
-                <!-- EXPLICIT CALCULATION -->
-                <div class="calc-box">
-                    <h3>📐 Calculation (step by step)</h3>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            <span class="num" id="l_toksec">100</span> tok/sec 
-                            <span class="op">×</span> <span class="num">3600</span> sec/hr 
-                            <span class="op">×</span> <span class="num" id="l_hours">8</span> hrs/day
-                        </div>
-                        <div class="calc-result local">= <span id="l_tokday">2,880,000</span> tokens/day</div>
+                    <div class="setting-group">
+                        <label>Comparison Period</label>
+                        <select id="periodYears">
+                            <option value="1">1 Year</option>
+                            <option value="2">2 Years</option>
+                            <option value="3" selected>3 Years</option>
+                            <option value="5">5 Years</option>
+                        </select>
                     </div>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            <span class="num" id="l_tokday2">2,880,000</span> tok/day 
-                            <span class="op">×</span> <span class="num" id="l_quality">0.68</span> quality
-                        </div>
-                        <div class="calc-result local">= <span id="l_adjusted">1,958,400</span> quality-adjusted tokens/day</div>
-                    </div>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            <span class="num" id="l_adjusted2">1,958,400</span> tok/day 
-                            <span class="op">×</span> <span class="num">365</span> days 
-                            <span class="op">×</span> <span class="num" id="l_years">2</span> years
-                        </div>
-                        <div class="calc-result local">= <span id="l_total">1.43B</span> total quality-adjusted tokens</div>
-                    </div>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            <span class="num" id="l_totaltok">1.43B</span> tokens 
-                            <span class="op">/</span> $<span class="num" id="l_hwcost">2,500</span> hardware cost
-                        </div>
-                        <div class="calc-result local">= <span id="l_tokperdollar">572,000</span> quality-adjusted tokens per $1</div>
-                    </div>
-                    
-                    <div class="final-value">
-                        <div class="label">VALUE SCORE (tokens per dollar)</div>
-                        <div class="value local-color"><span id="l_final">572K</span></div>
-                        <div class="unit">quality-adjusted tokens per $1 over <span id="l_periodlabel">2</span> years</div>
+                    <div class="setting-group">
+                        <label>Quality Benchmark</label>
+                        <select id="benchmark"></select>
                     </div>
                 </div>
             </div>
             
-            <!-- CLOUD SETUP -->
-            <div class="card">
-                <h2><span class="cloud-color">☁️</span> Cloud Subscription</h2>
-                
-                <div class="form-group">
-                    <label>Cloud Service</label>
-                    <select id="cloudModel">
-                        <option value="20" data-tokens="220000" data-quality="88" data-limit="day" data-note="~44K/5hr × 5 resets">Claude Pro ($20/mo) - Sonnet</option>
-                        <option value="100" data-tokens="440000" data-quality="95" data-limit="day" data-note="~88K/5hr × 5 resets">Claude Max 5× ($100/mo) - Opus</option>
-                        <option value="200" data-tokens="1100000" data-quality="95" data-limit="day" data-note="~220K/5hr × 5 resets">Claude Max 20× ($200/mo) - Opus</option>
-                        <option value="20" data-tokens="80000" data-quality="85" data-limit="day">ChatGPT Plus ($20/mo)</option>
-                        <option value="200" data-tokens="500000" data-quality="90" data-limit="day">ChatGPT Pro ($200/mo)</option>
-                        <option value="20" data-tokens="100000" data-quality="83" data-limit="day">Gemini Advanced ($20/mo)</option>
+            <div id="calculatorContent">Loading data...</div>
+        </div>
+        
+        <!-- TAB: CHART -->
+        <div id="tab-chart" class="tab-content">
+            <div class="chart-section">
+                <h2>Value Over Time by Provider</h2>
+                <div class="chart-controls">
+                    <select id="chartType">
+                        <option value="all">All Types</option>
+                        <option value="api">API Only</option>
+                        <option value="local">Local Only</option>
+                        <option value="subscription">Subscription Only</option>
+                    </select>
+                    <select id="chartProvider">
+                        <option value="all">All Providers</option>
                     </select>
                 </div>
-                
-                <div class="form-group" style="background: rgba(255,200,0,0.1); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; color: #ccc;">
-                    <strong style="color: #ffc800;">⚠️ Claude limits:</strong> Based on 5-hour rolling windows. 
-                    Pro: ~44K/5hr, Max 5×: ~88K/5hr, Max 20×: ~220K/5hr. 
-                    Assuming ~5 resets/day for daily estimate. Real usage may be 30-50% lower due to throttles.
-                </div>
-                
-                <div class="row">
-                    <div class="form-group">
-                        <label>Custom $/month</label>
-                        <input type="number" id="customCloudPrice" placeholder="e.g. 100">
-                    </div>
-                    <div class="form-group">
-                        <label>Custom Quality %</label>
-                        <input type="number" id="customCloudQuality" placeholder="e.g. 95" min="0" max="100">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Token Limit Type</label>
-                    <select id="limitType">
-                        <option value="day">Per Day</option>
-                        <option value="week">Per Week</option>
-                        <option value="month">Per Month</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Token Limit Amount</label>
-                    <input type="number" id="tokenLimit" placeholder="e.g. 220000">
-                </div>
-                
-                <div class="form-group">
-                    <label>Usage Efficiency (account for throttles/resets)</label>
-                    <select id="usageEfficiency">
-                        <option value="1.0">100% - Theoretical max (optimistic)</option>
-                        <option value="0.7" selected>70% - Realistic usage</option>
-                        <option value="0.5">50% - Conservative (heavy throttling)</option>
-                    </select>
-                </div>
-                
-                <!-- EXPLICIT CALCULATION -->
-                <div class="calc-box">
-                    <h3>📐 Calculation (step by step)</h3>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            <span class="num" id="c_rawtokens">45,000</span> tokens/<span id="c_limittype">day</span>
-                            <span id="c_conversion"></span>
-                        </div>
-                        <div class="calc-result cloud">= <span id="c_tokday">45,000</span> tokens/day</div>
-                    </div>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            <span class="num" id="c_tokday2">45,000</span> tok/day 
-                            <span class="op">×</span> <span class="num" id="c_quality">0.95</span> quality
-                        </div>
-                        <div class="calc-result cloud">= <span id="c_adjusted">42,750</span> quality-adjusted tokens/day</div>
-                    </div>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            <span class="num" id="c_adjusted2">42,750</span> tok/day 
-                            <span class="op">×</span> <span class="num">365</span> days 
-                            <span class="op">×</span> <span class="num" id="c_years">2</span> years
-                        </div>
-                        <div class="calc-result cloud">= <span id="c_total">31.2M</span> total quality-adjusted tokens</div>
-                    </div>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            $<span class="num" id="c_monthly">100</span>/mo 
-                            <span class="op">×</span> <span class="num">12</span> mo 
-                            <span class="op">×</span> <span class="num" id="c_years2">2</span> years
-                        </div>
-                        <div class="calc-result cloud">= $<span id="c_totalcost">2,400</span> total subscription cost</div>
-                    </div>
-                    
-                    <div class="calc-step">
-                        <div class="calc-formula">
-                            <span class="num" id="c_totaltok">31.2M</span> tokens 
-                            <span class="op">/</span> $<span class="num" id="c_totalcost2">2,400</span> subscription cost
-                        </div>
-                        <div class="calc-result cloud">= <span id="c_tokperdollar">13,000</span> quality-adjusted tokens per $1</div>
-                    </div>
-                    
-                    <div class="final-value">
-                        <div class="label">VALUE SCORE (tokens per dollar)</div>
-                        <div class="value cloud-color"><span id="c_final">13K</span></div>
-                        <div class="unit">quality-adjusted tokens per $1 over <span id="c_periodlabel">2</span> years</div>
-                    </div>
+                <div class="chart-wrapper">
+                    <canvas id="valueChart"></canvas>
                 </div>
             </div>
         </div>
         
-        <!-- COMPARISON -->
-        <div class="comparison-card">
-            <h2>📊 Head-to-Head Comparison</h2>
-            
-            <div class="bar-row">
-                <div class="bar-label">
-                    <span class="local-color">🖥️ Local: Tokens per Dollar</span>
-                    <span id="localBarLabel">572K</span>
-                </div>
-                <div class="bar-container">
-                    <div class="bar-fill local" id="localBar" style="width: 50%"></div>
-                </div>
+        <!-- TAB: DATA -->
+        <div id="tab-data" class="tab-content">
+            <div class="data-table-section">
+                <h3>🤖 Models <a href="https://github.com/wonderwhy-er/llm-value-comparison/tree/main/data/models" class="edit-link" target="_blank">[Edit on GitHub]</a></h3>
+                <table class="data-table" id="tableModels">
+                    <thead><tr><th>Model</th><th>Provider</th><th>Release</th><th>Model Card</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
             
-            <div class="bar-row">
-                <div class="bar-label">
-                    <span class="cloud-color">☁️ Cloud: Tokens per Dollar</span>
-                    <span id="cloudBarLabel">13K</span>
-                </div>
-                <div class="bar-container">
-                    <div class="bar-fill cloud" id="cloudBar" style="width: 50%"></div>
-                </div>
+            <div class="data-table-section">
+                <h3>📊 Benchmark Scores <a href="https://github.com/wonderwhy-er/llm-value-comparison/tree/main/data/models" class="edit-link" target="_blank">[Edit on GitHub]</a></h3>
+                <table class="data-table" id="tableBenchmarks">
+                    <thead><tr><th>Model</th><th>Arena ELO</th><th>Aider</th><th>LiveBench</th><th>MMLU</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
             
-            <div class="winner-box" id="winnerBox">
-                <div class="winner-title">BETTER VALUE</div>
-                <div class="winner-name" id="winnerName">🖥️ LOCAL</div>
-                <div class="winner-detail" id="winnerDetail">45× more quality-adjusted tokens for similar cost</div>
+            <div class="data-table-section">
+                <h3>🔌 API Pricing <a href="https://github.com/wonderwhy-er/llm-value-comparison/tree/main/data/models" class="edit-link" target="_blank">[Edit on GitHub]</a></h3>
+                <table class="data-table" id="tableApi">
+                    <thead><tr><th>Model</th><th>Input $/M</th><th>Output $/M</th><th>Source</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div class="data-table-section">
+                <h3>🖥️ Local Performance <a href="https://github.com/wonderwhy-er/llm-value-comparison/tree/main/data/models" class="edit-link" target="_blank">[Edit on GitHub]</a></h3>
+                <table class="data-table" id="tableLocal">
+                    <thead><tr><th>Model</th><th>Hardware</th><th>Tok/s</th><th>Quant</th><th>VRAM</th><th>Source</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div class="data-table-section">
+                <h3>💳 Subscriptions <span style="color:#ff6b6b">(⚠️ Estimated)</span> <a href="https://github.com/wonderwhy-er/llm-value-comparison/tree/main/data/models" class="edit-link" target="_blank">[Edit on GitHub]</a></h3>
+                <table class="data-table" id="tableSubs">
+                    <thead><tr><th>Model</th><th>Subscription</th><th>$/mo</th><th>Tok/day</th><th>Confidence</th><th>Notes</th><th>Source</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div class="data-table-section">
+                <h3>🔧 Hardware <a href="https://github.com/wonderwhy-er/llm-value-comparison/blob/main/data/hardware.json" class="edit-link" target="_blank">[Edit on GitHub]</a></h3>
+                <table class="data-table" id="tableHardware">
+                    <thead><tr><th>Hardware</th><th>Price</th><th>VRAM</th><th>Year</th><th>Source</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        function formatNum(n) {
-            if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
-            if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
-            if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-            if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
-            return n.toFixed(0);
-        }
+    // Global state
+    let DATA = { models: {}, hardware: {}, benchmarks: {} };
+    let chart = null;
+    
+    const PROVIDER_COLORS = {
+      'OpenAI': '#10a37f', 'Anthropic': '#d4a574', 'Google': '#4285f4',
+      'DeepSeek': '#ff6b6b', 'Meta': '#0668E1', 'Alibaba': '#ff6a00',
+      'Mistral': '#ff7000', 'Microsoft': '#00bcf2',
+    };
+    
+    function formatNum(n) {
+      if (n === null || n === undefined) return '-';
+      if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+      return n.toFixed(0);
+    }
+    
+    // Load all data from JSON files
+    async function loadData() {
+      try {
+        // Load index
+        const indexRes = await fetch('data/index.json');
+        const index = await indexRes.json();
         
-        function formatMoney(n) {
-            if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
-            if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
-            return '$' + n.toFixed(0);
-        }
+        // Load hardware
+        const hwRes = await fetch('data/hardware.json');
+        DATA.hardware = await hwRes.json();
         
-        function calculate() {
-            const years = parseInt(document.getElementById('periodYears').value);
-            
-            // === LOCAL ===
-            const hwSelect = document.getElementById('hardware');
-            const hwOption = hwSelect.options[hwSelect.selectedIndex];
-            const hwPrice = parseFloat(document.getElementById('customHardware').value) || parseFloat(hwOption.value);
-            const speedMult = parseFloat(hwOption.dataset.speed);
-            
-            const localSelect = document.getElementById('localModel');
-            const localOption = localSelect.options[localSelect.selectedIndex];
-            const baseSpeed = parseFloat(document.getElementById('customSpeed').value) || parseFloat(localOption.value);
-            const localQuality = (parseFloat(document.getElementById('customLocalQuality').value) || parseFloat(localOption.dataset.quality)) / 100;
-            
-            const hours = parseFloat(document.getElementById('hoursPerDay').value) || 8;
-            const effectiveSpeed = baseSpeed * speedMult;
-            
-            // Local calculations
-            const localTokPerDay = effectiveSpeed * 3600 * hours;
-            const localAdjustedPerDay = localTokPerDay * localQuality;
-            const localTotalTokens = localAdjustedPerDay * 365 * years;
-            const localCostPerToken = hwPrice / localTotalTokens;
-            
-            // Local: tokens per dollar
-            const localTokensPerDollar = localTotalTokens / hwPrice;
-            
-            // Update LOCAL display
-            document.getElementById('l_toksec').textContent = effectiveSpeed.toFixed(0);
-            document.getElementById('l_hours').textContent = hours;
-            document.getElementById('l_tokday').textContent = formatNum(localTokPerDay);
-            document.getElementById('l_tokday2').textContent = formatNum(localTokPerDay);
-            document.getElementById('l_quality').textContent = localQuality.toFixed(2);
-            document.getElementById('l_adjusted').textContent = formatNum(localAdjustedPerDay);
-            document.getElementById('l_adjusted2').textContent = formatNum(localAdjustedPerDay);
-            document.getElementById('l_years').textContent = years;
-            document.getElementById('l_total').textContent = formatNum(localTotalTokens);
-            document.getElementById('l_hwcost').textContent = hwPrice.toLocaleString();
-            document.getElementById('l_totaltok').textContent = formatNum(localTotalTokens);
-            document.getElementById('l_tokperdollar').textContent = formatNum(localTokensPerDollar);
-            document.getElementById('l_periodlabel').textContent = years;
-            document.getElementById('l_final').textContent = formatNum(localTokensPerDollar);
-            
-            // === CLOUD ===
-            const cloudSelect = document.getElementById('cloudModel');
-            const cloudOption = cloudSelect.options[cloudSelect.selectedIndex];
-            const monthlyPrice = parseFloat(document.getElementById('customCloudPrice').value) || parseFloat(cloudOption.value);
-            const cloudQuality = (parseFloat(document.getElementById('customCloudQuality').value) || parseFloat(cloudOption.dataset.quality)) / 100;
-            
-            // Token limit handling
-            const limitType = document.getElementById('limitType').value;
-            let rawTokens = parseFloat(document.getElementById('tokenLimit').value) || parseFloat(cloudOption.dataset.tokens);
-            const efficiency = parseFloat(document.getElementById('usageEfficiency').value);
-            
-            let tokensPerDay;
-            let conversionText = '';
-            if (limitType === 'day') {
-                tokensPerDay = rawTokens;
-            } else if (limitType === 'week') {
-                tokensPerDay = Math.floor(rawTokens / 7);
-                conversionText = ' <span class="op">÷</span> <span class="num">7</span> days';
-            } else if (limitType === 'month') {
-                tokensPerDay = Math.floor(rawTokens / 30);
-                conversionText = ' <span class="op">÷</span> <span class="num">30</span> days';
-            }
-            
-            // Apply efficiency factor
-            const effectiveTokensPerDay = tokensPerDay * efficiency;
-            
-            // Cloud calculations
-            const cloudAdjustedPerDay = effectiveTokensPerDay * cloudQuality;
-            const cloudTotalTokens = cloudAdjustedPerDay * 365 * years;
-            const cloudTotalCost = monthlyPrice * 12 * years;
-            const cloudTokensPerDollar = cloudTotalTokens / cloudTotalCost;
-            
-            // Update CLOUD display
-            document.getElementById('c_rawtokens').textContent = rawTokens.toLocaleString();
-            document.getElementById('c_limittype').textContent = limitType;
-            document.getElementById('c_conversion').innerHTML = conversionText + (efficiency < 1 ? ' <span class="op">×</span> <span class="num">' + (efficiency*100) + '%</span> efficiency' : '');
-            document.getElementById('c_tokday').textContent = effectiveTokensPerDay.toLocaleString();
-            document.getElementById('c_tokday2').textContent = effectiveTokensPerDay.toLocaleString();
-            document.getElementById('c_quality').textContent = cloudQuality.toFixed(2);
-            document.getElementById('c_adjusted').textContent = formatNum(cloudAdjustedPerDay);
-            document.getElementById('c_adjusted2').textContent = formatNum(cloudAdjustedPerDay);
-            document.getElementById('c_years').textContent = years;
-            document.getElementById('c_years2').textContent = years;
-            document.getElementById('c_total').textContent = formatNum(cloudTotalTokens);
-            document.getElementById('c_monthly').textContent = monthlyPrice;
-            document.getElementById('c_totalcost').textContent = cloudTotalCost.toLocaleString();
-            document.getElementById('c_totaltok').textContent = formatNum(cloudTotalTokens);
-            document.getElementById('c_totalcost2').textContent = cloudTotalCost.toLocaleString();
-            document.getElementById('c_tokperdollar').textContent = formatNum(cloudTokensPerDollar);
-            document.getElementById('c_periodlabel').textContent = years;
-            document.getElementById('c_final').textContent = formatNum(cloudTokensPerDollar);
-            
-            // === COMPARISON ===
-            const maxValue = Math.max(localTokensPerDollar, cloudTokensPerDollar);
-            const localPct = (localTokensPerDollar / maxValue) * 100;
-            const cloudPct = (cloudTokensPerDollar / maxValue) * 100;
-            
-            document.getElementById('localBar').style.width = localPct + '%';
-            document.getElementById('cloudBar').style.width = cloudPct + '%';
-            document.getElementById('localBarLabel').textContent = formatNum(localTokensPerDollar) + ' tok/$';
-            document.getElementById('cloudBarLabel').textContent = formatNum(cloudTokensPerDollar) + ' tok/$';
-            
-            // Winner
-            const winnerBox = document.getElementById('winnerBox');
-            const ratio = localTokensPerDollar / cloudTokensPerDollar;
-            
-            if (ratio > 1.05) {
-                winnerBox.className = 'winner-box local';
-                document.getElementById('winnerName').textContent = '🖥️ LOCAL WINS';
-                document.getElementById('winnerName').style.color = '#00ff88';
-                document.getElementById('winnerDetail').textContent = 
-                    ratio.toFixed(1) + '× more tokens per dollar';
-            } else if (ratio < 0.95) {
-                winnerBox.className = 'winner-box cloud';
-                document.getElementById('winnerName').textContent = '☁️ CLOUD WINS';
-                document.getElementById('winnerName').style.color = '#7c3aed';
-                document.getElementById('winnerDetail').textContent = 
-                    (1/ratio).toFixed(1) + '× more tokens per dollar';
-            } else {
-                winnerBox.className = 'winner-box tie';
-                document.getElementById('winnerName').textContent = '🤝 ROUGHLY EQUAL';
-                document.getElementById('winnerName').style.color = '#ffc800';
-                document.getElementById('winnerDetail').textContent = 
-                    'Similar value per dollar';
-            }
-        }
+        // Load benchmarks metadata
+        const bmRes = await fetch('data/benchmarks.json');
+        DATA.benchmarks = await bmRes.json();
         
-        // Event listeners
-        document.querySelectorAll('select, input').forEach(el => {
-            el.addEventListener('input', calculate);
-            el.addEventListener('change', calculate);
+        // Load all models
+        const modelPromises = index.models.map(async (id) => {
+          const res = await fetch(`data/models/${id}.json`);
+          return res.json();
         });
+        const models = await Promise.all(modelPromises);
+        models.forEach(m => { DATA.models[m.id] = m; });
         
-        // Sync token limit from cloud model selection
-        document.getElementById('cloudModel').addEventListener('change', function() {
-            const opt = this.options[this.selectedIndex];
-            document.getElementById('tokenLimit').value = '';
-            document.getElementById('tokenLimit').placeholder = opt.dataset.tokens;
-            document.getElementById('limitType').value = opt.dataset.limit || 'day';
+        console.log('Data loaded:', DATA);
+        init();
+      } catch (err) {
+        console.error('Failed to load data:', err);
+        document.getElementById('calculatorContent').innerHTML = 
+          `<div class="warning-box">Error loading data: ${err.message}</div>`;
+      }
+    }
+    
+    function init() {
+      // Populate hardware dropdown
+      const hwSelect = document.getElementById('hardware');
+      Object.entries(DATA.hardware).forEach(([id, hw]) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = `${hw.name} ($${hw.price})`;
+        hwSelect.appendChild(opt);
+      });
+      
+      // Populate benchmark dropdown (only recommended ones)
+      const bmSelect = document.getElementById('benchmark');
+      Object.entries(DATA.benchmarks).filter(([,b]) => b.recommended).forEach(([id, bm]) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = bm.name;
+        bmSelect.appendChild(opt);
+      });
+      
+      // Populate provider filter
+      const providers = new Set();
+      Object.values(DATA.models).forEach(m => providers.add(m.provider));
+      const provSelect = document.getElementById('chartProvider');
+      providers.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        provSelect.appendChild(opt);
+      });
+      
+      // Render data tables
+      renderDataTables();
+      
+      // Setup tab switching
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+          if (tab.dataset.tab === 'chart') updateChart();
         });
+      });
+      
+      // Event listeners
+      document.querySelectorAll('select, input').forEach(el => {
+        el.addEventListener('change', updateAll);
+        el.addEventListener('input', updateAll);
+      });
+      
+      updateAll();
+    }
+    
+    function renderDataTables() {
+      // Models table
+      let html = '';
+      Object.values(DATA.models).forEach(m => {
+        html += `<tr>
+          <td><strong>${m.name}</strong></td>
+          <td>${m.provider}</td>
+          <td>${m.releaseDate}</td>
+          <td><a href="${m.modelCard}" target="_blank">Link</a></td>
+        </tr>`;
+      });
+      document.querySelector('#tableModels tbody').innerHTML = html;
+      
+      // Benchmarks table
+      html = '';
+      Object.values(DATA.models).forEach(m => {
+        const bm = m.benchmarks || {};
+        html += `<tr>
+          <td>${m.name}</td>
+          <td>${bm.arena_elo ? `<a href="${bm.arena_elo.source}" target="_blank">${bm.arena_elo.score}</a>` : '-'}</td>
+          <td>${bm.aider_polyglot ? `<a href="${bm.aider_polyglot.source}" target="_blank">${bm.aider_polyglot.score}%</a>` : '-'}</td>
+          <td>${bm.livebench ? `<a href="${bm.livebench.source}" target="_blank">${bm.livebench.score}%</a>` : '-'}</td>
+          <td>${bm.mmlu ? `<a href="${bm.mmlu.source}" target="_blank">${bm.mmlu.score}%</a>` : '-'}</td>
+        </tr>`;
+      });
+      document.querySelector('#tableBenchmarks tbody').innerHTML = html;
+      
+      // API table
+      html = '';
+      Object.values(DATA.models).filter(m => m.api).forEach(m => {
+        html += `<tr>
+          <td>${m.name}</td>
+          <td>$${m.api.inputPer1M}</td>
+          <td>$${m.api.outputPer1M}</td>
+          <td><a href="${m.api.source}" target="_blank">Link</a></td>
+        </tr>`;
+      });
+      document.querySelector('#tableApi tbody').innerHTML = html;
+      
+      // Local performance table
+      html = '';
+      Object.values(DATA.models).filter(m => m.local).forEach(m => {
+        Object.entries(m.local).forEach(([hwId, perf]) => {
+          const hw = DATA.hardware[hwId];
+          html += `<tr>
+            <td>${m.name}</td>
+            <td>${hw ? hw.name : hwId}</td>
+            <td>${perf.tokensPerSec}</td>
+            <td>${perf.quantization || '-'}</td>
+            <td>${perf.vramRequired || '-'}GB</td>
+            <td><a href="${perf.source}" target="_blank">Link</a></td>
+          </tr>`;
+        });
+      });
+      document.querySelector('#tableLocal tbody').innerHTML = html;
+      
+      // Subscriptions table
+      html = '';
+      Object.values(DATA.models).filter(m => m.subscriptions).forEach(m => {
+        Object.entries(m.subscriptions).forEach(([subId, sub]) => {
+          const confClass = sub.confidence === 'low' ? 'confidence-low' : 
+                           sub.confidence === 'medium' ? 'confidence-medium' : 'confidence-high';
+          html += `<tr>
+            <td>${m.name}</td>
+            <td>${sub.name}</td>
+            <td>$${sub.monthlyPrice}</td>
+            <td>${sub.tokensPerDay ? formatNum(sub.tokensPerDay) : '?'}</td>
+            <td class="${confClass}">${sub.confidence || 'low'}</td>
+            <td style="max-width:200px;font-size:0.65rem">${sub.notes || ''}</td>
+            <td><a href="${sub.source}" target="_blank">Link</a></td>
+          </tr>`;
+        });
+      });
+      document.querySelector('#tableSubs tbody').innerHTML = html;
+      
+      // Hardware table
+      html = '';
+      Object.entries(DATA.hardware).forEach(([id, hw]) => {
+        html += `<tr>
+          <td>${hw.name}</td>
+          <td>$${hw.price}</td>
+          <td>${hw.vram}GB</td>
+          <td>${hw.year}</td>
+          <td><a href="${hw.source}" target="_blank">Link</a></td>
+        </tr>`;
+      });
+      document.querySelector('#tableHardware tbody').innerHTML = html;
+    }
+    
+    function getScore(model, benchmarkId) {
+      if (!model.benchmarks || !model.benchmarks[benchmarkId]) return null;
+      return model.benchmarks[benchmarkId].score;
+    }
+    
+    function updateAll() {
+      renderCalculator();
+      // Chart updates only when tab is visible
+    }
+    
+    function renderCalculator() {
+      const hwId = document.getElementById('hardware').value;
+      const hours = parseFloat(document.getElementById('hoursPerDay').value) || 16;
+      const years = parseInt(document.getElementById('periodYears').value);
+      const benchmarkId = document.getElementById('benchmark').value;
+      const hw = DATA.hardware[hwId];
+      
+      if (!hw) return;
+      
+      // Calculate values for all models
+      let results = [];
+      
+      Object.values(DATA.models).forEach(model => {
+        const score = getScore(model, benchmarkId);
+        if (!score) return;
         
-        // Initial
-        calculate();
+        // API value
+        if (model.api) {
+          const tokPerDollar = 1000000 / model.api.inputPer1M;
+          const value = tokPerDollar * (score / 100);
+          results.push({
+            model: model.name,
+            type: 'api',
+            value: value,
+            score: score,
+            details: `$${model.api.inputPer1M}/M input`
+          });
+        }
+        
+        // Local value
+        if (model.local && model.local[hwId]) {
+          const perf = model.local[hwId];
+          const tokTotal = perf.tokensPerSec * 3600 * hours * 365 * years;
+          const value = (tokTotal / hw.price) * (score / 100);
+          results.push({
+            model: model.name,
+            type: 'local',
+            value: value,
+            score: score,
+            details: `${perf.tokensPerSec} tok/s on ${hw.name}`
+          });
+        }
+        
+        // Subscription values
+        if (model.subscriptions) {
+          Object.values(model.subscriptions).forEach(sub => {
+            if (!sub.tokensPerDay) return;
+            const tokTotal = sub.tokensPerDay * 365 * years;
+            const cost = sub.monthlyPrice * 12 * years;
+            const value = (tokTotal / cost) * (score / 100);
+            results.push({
+              model: model.name,
+              type: 'subscription',
+              subName: sub.name,
+              value: value,
+              score: score,
+              confidence: sub.confidence,
+              details: `$${sub.monthlyPrice}/mo`
+            });
+          });
+        }
+      });
+      
+      // Sort by value
+      results.sort((a, b) => b.value - a.value);
+      
+      // Render
+      const maxVal = results[0]?.value || 1;
+      let html = '<div style="display:flex;flex-direction:column;gap:0.5rem">';
+      
+      results.forEach((r, i) => {
+        const pct = (r.value / maxVal) * 100;
+        const typeColor = r.type === 'api' ? '#ff6b6b' : r.type === 'local' ? '#00ff88' : '#7c3aed';
+        const typeIcon = r.type === 'api' ? '🔌' : r.type === 'local' ? '🖥️' : '💳';
+        const confWarn = r.confidence === 'low' ? ' ⚠️' : '';
+        const label = r.subName ? `${r.model} (${r.subName})` : r.model;
+        
+        html += `
+          <div style="display:flex;align-items:center;gap:1rem">
+            <div style="width:200px;font-size:0.75rem">${typeIcon} ${label}${confWarn}</div>
+            <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:4px;height:24px;overflow:hidden">
+              <div style="width:${pct}%;height:100%;background:${typeColor};display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:0.7rem;font-weight:600">
+                ${formatNum(r.value)}
+              </div>
+            </div>
+            <div style="width:150px;font-size:0.65rem;color:#888">${r.details} (${r.score}%)</div>
+          </div>`;
+      });
+      
+      html += '</div>';
+      document.getElementById('calculatorContent').innerHTML = html;
+    }
+    
+    function updateChart() {
+      const hwId = document.getElementById('hardware').value;
+      const hours = parseFloat(document.getElementById('hoursPerDay').value) || 16;
+      const years = parseInt(document.getElementById('periodYears').value);
+      const benchmarkId = document.getElementById('benchmark').value;
+      const typeFilter = document.getElementById('chartType').value;
+      const providerFilter = document.getElementById('chartProvider').value;
+      const hw = DATA.hardware[hwId];
+      
+      if (!hw) return;
+      
+      let dataPoints = [];
+      
+      Object.values(DATA.models).forEach(model => {
+        if (providerFilter !== 'all' && model.provider !== providerFilter) return;
+        
+        const score = getScore(model, benchmarkId);
+        if (!score) return;
+        
+        const date = new Date(model.releaseDate);
+        
+        // API
+        if (model.api && (typeFilter === 'all' || typeFilter === 'api')) {
+          const tokPerDollar = 1000000 / model.api.inputPer1M;
+          const value = tokPerDollar * (score / 100);
+          dataPoints.push({
+            name: model.name,
+            provider: model.provider,
+            type: 'api',
+            date: date,
+            value: value
+          });
+        }
+        
+        // Local
+        if (model.local && model.local[hwId] && (typeFilter === 'all' || typeFilter === 'local')) {
+          const perf = model.local[hwId];
+          const tokTotal = perf.tokensPerSec * 3600 * hours * 365 * years;
+          const value = (tokTotal / hw.price) * (score / 100);
+          dataPoints.push({
+            name: `${model.name} (local)`,
+            provider: model.provider,
+            type: 'local',
+            date: date,
+            value: value
+          });
+        }
+        
+        // Subscriptions
+        if (model.subscriptions && (typeFilter === 'all' || typeFilter === 'subscription')) {
+          Object.values(model.subscriptions).forEach(sub => {
+            if (!sub.tokensPerDay) return;
+            const tokTotal = sub.tokensPerDay * 365 * years;
+            const cost = sub.monthlyPrice * 12 * years;
+            const value = (tokTotal / cost) * (score / 100);
+            dataPoints.push({
+              name: `${sub.name}`,
+              provider: model.provider,
+              type: 'subscription',
+              date: date,
+              value: value,
+              estimated: sub.confidence === 'low'
+            });
+          });
+        }
+      });
+      
+      // Group by provider+type
+      const groups = {};
+      dataPoints.forEach(d => {
+        const key = `${d.provider}-${d.type}`;
+        if (!groups[key]) groups[key] = { provider: d.provider, type: d.type, points: [] };
+        groups[key].points.push(d);
+      });
+      
+      Object.values(groups).forEach(g => g.points.sort((a, b) => a.date - b.date));
+      
+      const datasets = Object.values(groups).map(g => {
+        const color = PROVIDER_COLORS[g.provider] || '#888';
+        const typeLabel = g.type === 'api' ? '' : g.type === 'local' ? ' (Local)' : ' (Sub)';
+        return {
+          label: g.provider + typeLabel,
+          data: g.points.map(p => ({ x: p.date, y: p.value, ...p })),
+          backgroundColor: color,
+          borderColor: color,
+          borderWidth: 2,
+          pointRadius: 7,
+          showLine: true,
+          tension: 0.2,
+          borderDash: g.type === 'subscription' ? [5, 5] : [],
+          pointStyle: g.type === 'local' ? 'rect' : g.type === 'subscription' ? 'triangle' : 'circle',
+        };
+      });
+      
+      if (chart) chart.destroy();
+      
+      chart = new Chart(document.getElementById('valueChart'), {
+        type: 'scatter',
+        data: { datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { type: 'time', time: { unit: 'quarter' }, title: { display: true, text: 'Release Date', color: '#888' }, ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { type: 'logarithmic', title: { display: true, text: 'Quality-Adjusted Tokens per $', color: '#888' }, ticks: { color: '#888', callback: v => formatNum(v) }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          },
+          plugins: {
+            tooltip: { callbacks: { label: ctx => `${ctx.raw.name}: ${formatNum(ctx.raw.y)}` } },
+            legend: { display: true, labels: { color: '#888', usePointStyle: true } }
+          }
+        }
+      });
+    }
+    
+    // Start loading
+    loadData();
     </script>
 </body>
 </html>
