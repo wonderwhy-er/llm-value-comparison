@@ -86,9 +86,9 @@
     }
   },
   "deepseek-v3": {
-    "name": "DeepSeek V3",
+    "name": "DeepSeek V3.1",
     "provider": "DeepSeek",
-    "releaseDate": "2024-12-26",
+    "releaseDate": "2025-08-01",
     "modelCard": "https://github.com/deepseek-ai/DeepSeek-V3",
     "benchmarks": {
       "arena_text": {
@@ -105,9 +105,9 @@
       }
     },
     "api": {
-      "inputPer1M": 0.27,
-      "outputPer1M": 1.1,
-      "source": "https://platform.deepseek.com/api-docs/pricing",
+      "inputPer1M": 0.56,
+      "outputPer1M": 1.68,
+      "source": "https://api-docs.deepseek.com/quick_start/pricing",
       "provider": "DeepSeek"
     },
     "local": {
