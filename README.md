@@ -1,6 +1,6 @@
 # LLM Value Comparison: Local vs Cloud
 
-**Live Tool:** [https://eduardszoecs.github.io/llm-value-comparison/](https://eduardszoecs.github.io/llm-value-comparison/)
+**Live Tool:** [https://wonderwhy-er.github.io/llm-value-comparison/](https://wonderwhy-er.github.io/llm-value-comparison/)
 
 An interactive calculator to compare the **value** of running local LLMs vs cloud subscriptions.
 
