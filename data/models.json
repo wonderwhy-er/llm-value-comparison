@@ -17,7 +17,8 @@
     "api": {
       "inputPer1M": 15,
       "outputPer1M": 75,
-      "source": "https://www.anthropic.com/pricing"
+      "source": "https://www.anthropic.com/pricing",
+      "provider": "Anthropic"
     },
     "local": null,
     "subscriptions": {
@@ -61,7 +62,8 @@
     "api": {
       "inputPer1M": 3,
       "outputPer1M": 15,
-      "source": "https://www.anthropic.com/pricing"
+      "source": "https://www.anthropic.com/pricing",
+      "provider": "Anthropic"
     },
     "local": null,
     "subscriptions": {
@@ -93,7 +95,8 @@
     "api": {
       "inputPer1M": 0.27,
       "outputPer1M": 1.1,
-      "source": "https://platform.deepseek.com/api-docs/pricing"
+      "source": "https://platform.deepseek.com/api-docs/pricing",
+      "provider": "DeepSeek"
     },
     "local": {
       "rtx_4090": {
@@ -124,7 +127,8 @@
     "api": {
       "inputPer1M": 1.25,
       "outputPer1M": 10,
-      "source": "https://ai.google.dev/pricing"
+      "source": "https://ai.google.dev/pricing",
+      "provider": "Google"
     },
     "local": null,
     "subscriptions": {
@@ -160,7 +164,8 @@
     "api": {
       "inputPer1M": 2.5,
       "outputPer1M": 10,
-      "source": "https://openai.com/api/pricing/"
+      "source": "https://openai.com/api/pricing/",
+      "provider": "OpenAI"
     },
     "local": null,
     "subscriptions": {
@@ -196,7 +201,8 @@
     "api": {
       "inputPer1M": 0.6,
       "outputPer1M": 0.6,
-      "source": "https://www.together.ai/pricing"
+      "source": "https://www.together.ai/pricing",
+      "provider": "Together.ai"
     },
     "local": {
       "rtx_3090": {
@@ -239,7 +245,8 @@
     "api": {
       "inputPer1M": 0.05,
       "outputPer1M": 0.05,
-      "source": "https://www.together.ai/pricing"
+      "source": "https://www.together.ai/pricing",
+      "provider": "Together.ai"
     },
     "local": {
       "rtx_3090": {
@@ -281,7 +288,8 @@
     "api": {
       "inputPer1M": 10,
       "outputPer1M": 40,
-      "source": "https://openai.com/api/pricing/"
+      "source": "https://openai.com/api/pricing/",
+      "provider": "OpenAI"
     },
     "local": null,
     "subscriptions": {
@@ -313,7 +321,8 @@
     "api": {
       "inputPer1M": 0.15,
       "outputPer1M": 0.6,
-      "source": "https://www.together.ai/pricing"
+      "source": "https://www.together.ai/pricing",
+      "provider": "Together.ai"
     },
     "local": {
       "rtx_3090": {
@@ -336,5 +345,144 @@
       }
     },
     "subscriptions": null
+  },
+  "claude-opus-4-5": {
+    "name": "Claude Opus 4.5",
+    "provider": "Anthropic",
+    "releaseDate": "2025-11-24",
+    "modelCard": "https://www.anthropic.com/news/claude-opus-4-5",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1490,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 89.4,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 5,
+      "outputPer1M": 25,
+      "source": "https://www.anthropic.com/pricing",
+      "provider": "Anthropic"
+    },
+    "local": null,
+    "subscriptions": {
+      "claude_max_5x": {
+        "name": "Claude Max 5×",
+        "monthlyPrice": 100,
+        "tokensPerDay": 1000000,
+        "confidence": "low",
+        "notes": "Full Opus 4.5 access with Max subscription",
+        "source": "https://www.anthropic.com/claude/max"
+      },
+      "claude_max_20x": {
+        "name": "Claude Max 20×",
+        "monthlyPrice": 200,
+        "tokensPerDay": 4000000,
+        "confidence": "low",
+        "notes": "20× Pro limits",
+        "source": "https://www.anthropic.com/claude/max"
+      }
+    }
+  },
+  "gemini-3-pro": {
+    "name": "Gemini 3 Pro",
+    "provider": "Google",
+    "releaseDate": "2025-11-18",
+    "modelCard": "https://blog.google/products/gemini/gemini-3-pro/",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1492,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 75,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 2,
+      "outputPer1M": 12,
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "provider": "Google"
+    },
+    "local": null,
+    "subscriptions": {
+      "gemini_advanced": {
+        "name": "Google AI Ultra",
+        "monthlyPrice": 20,
+        "tokensPerDay": 250000,
+        "confidence": "low",
+        "notes": "Priority access to Gemini 3 Pro",
+        "source": "https://one.google.com/about/ai-premium"
+      }
+    }
+  },
+  "gemini-3-flash": {
+    "name": "Gemini 3 Flash",
+    "provider": "Google",
+    "releaseDate": "2025-12-17",
+    "modelCard": "https://blog.google/products/gemini/gemini-3-flash/",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1450,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 72,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 0.5,
+      "outputPer1M": 3,
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "provider": "Google"
+    },
+    "local": null,
+    "subscriptions": null
+  },
+  "gpt-5-2": {
+    "name": "GPT-5.2",
+    "provider": "OpenAI",
+    "releaseDate": "2025-12-11",
+    "modelCard": "https://openai.com/index/introducing-gpt-5-2/",
+    "benchmarks": {
+      "arena_elo": {
+        "score": 1486,
+        "source": "https://lmarena.ai/leaderboard"
+      },
+      "aider_polyglot": {
+        "score": 88,
+        "source": "https://aider.chat/docs/leaderboards/"
+      }
+    },
+    "api": {
+      "inputPer1M": 1.75,
+      "outputPer1M": 14,
+      "source": "https://openai.com/api/pricing/",
+      "provider": "OpenAI"
+    },
+    "local": null,
+    "subscriptions": {
+      "chatgpt_plus": {
+        "name": "ChatGPT Plus",
+        "monthlyPrice": 20,
+        "tokensPerDay": 1280000,
+        "confidence": "medium",
+        "notes": "GPT-5.2 Instant available, Thinking requires Pro",
+        "source": "https://openai.com/chatgpt/pricing/"
+      },
+      "chatgpt_pro": {
+        "name": "ChatGPT Pro",
+        "monthlyPrice": 200,
+        "tokensPerDay": 5000000,
+        "confidence": "low",
+        "notes": "Full GPT-5.2 Pro access with xhigh reasoning",
+        "source": "https://openai.com/chatgpt/pricing/"
+      }
+    }
   }
 }

@@ -192,6 +192,36 @@
                 </div>
             </div>
             
+            <!-- Methodology explanation -->
+            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:0.75rem;line-height:1.7">
+                <h3 style="color:#ffc800;margin-bottom:0.75rem;font-size:0.85rem">📐 Methodology: Quality-Adjusted Tokens per Dollar</h3>
+                
+                <p style="color:#aaa;margin-bottom:1rem">Not all tokens are equal — a token from a smarter model is worth more than one from a weaker model. We calculate <strong style="color:#fff">"quality tokens"</strong> by multiplying raw token counts by model quality (from benchmarks). Then we divide by cost to get <strong style="color:#fff">quality-adjusted tokens per dollar</strong> — a fair way to compare completely different pricing models.</p>
+                
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem">
+                    <div style="border-left:2px solid #00ff88;padding-left:0.75rem">
+                        <div style="color:#00ff88;font-weight:600;margin-bottom:0.5rem">🖥️ Local</div>
+                        <div style="color:#888;font-size:0.65rem">
+                            Take tokens/second → calculate tokens/day you can generate → multiply by years of usage → multiply by quality score → divide by one-time hardware cost.
+                        </div>
+                    </div>
+                    <div style="border-left:2px solid #7c3aed;padding-left:0.75rem">
+                        <div style="color:#7c3aed;font-weight:600;margin-bottom:0.5rem">💳 Subscription</div>
+                        <div style="color:#888;font-size:0.65rem">
+                            Estimate average tokens/day from usage limits → multiply by years → multiply by quality score → divide by total subscription cost over that period.
+                        </div>
+                    </div>
+                    <div style="border-left:2px solid #ff6b6b;padding-left:0.75rem">
+                        <div style="color:#ff6b6b;font-weight:600;margin-bottom:0.5rem">🔌 API</div>
+                        <div style="color:#888;font-size:0.65rem">
+                            Take tokens per dollar (1M ÷ price) → multiply by quality score. Simple — you pay exactly for what you use.
+                        </div>
+                    </div>
+                </div>
+                
+                <p style="color:#666;margin-top:1rem;font-size:0.65rem"><strong>Quality scores:</strong> Percentage benchmarks (Aider, LiveBench) use the score directly. ELO rankings are normalized to 0-100% where 1000 ELO = 0% and 1500 ELO = 100%.</p>
+            </div>
+            
             <!-- Calculation explanation cards -->
             <div class="calc-grid">
                 <div class="calc-card local">
@@ -234,6 +264,7 @@
             <div class="chart-section">
                 <h2>Value Over Time by Provider</h2>
                 <div class="chart-controls">
+                    <select id="chartBenchmark"></select>
                     <select id="chartType">
                         <option value="all">All Types</option>
                         <option value="api">API Only</option>
@@ -356,11 +387,17 @@
       
       // Populate benchmark dropdown (only recommended ones)
       const bmSelect = document.getElementById('benchmark');
+      const chartBmSelect = document.getElementById('chartBenchmark');
       Object.entries(DATA.benchmarks).filter(([,b]) => b.recommended).forEach(([id, bm]) => {
         const opt = document.createElement('option');
         opt.value = id;
         opt.textContent = bm.name;
         bmSelect.appendChild(opt);
+        
+        const opt2 = document.createElement('option');
+        opt2.value = id;
+        opt2.textContent = bm.name;
+        chartBmSelect.appendChild(opt2);
       });
       
       // Populate calculator dropdowns
@@ -403,6 +440,11 @@
         updateAll();
       });
       
+      // Chart-specific controls
+      document.getElementById('chartBenchmark').addEventListener('change', updateChart);
+      document.getElementById('chartType').addEventListener('change', updateChart);
+      document.getElementById('chartProvider').addEventListener('change', updateChart);
+      
       updateAll();
     }
     
@@ -429,7 +471,7 @@
           Object.entries(m.subscriptions).forEach(([subId, sub]) => {
             const opt = document.createElement('option');
             opt.value = `${id}|${subId}`;
-            opt.textContent = `${sub.name} ($${sub.monthlyPrice}/mo)`;
+            opt.textContent = `${sub.name} → ${m.name} ($${sub.monthlyPrice}/mo)`;
             subSelect.appendChild(opt);
           });
         }
@@ -442,7 +484,8 @@
         if (m.api) {
           const opt = document.createElement('option');
           opt.value = id;
-          opt.textContent = `${m.name} ($${m.api.inputPer1M}/M)`;
+          const provider = m.api.provider ? ` via ${m.api.provider}` : '';
+          opt.textContent = `${m.name}${provider} ($${m.api.inputPer1M}/M)`;
           apiSelect.appendChild(opt);
         }
       });
@@ -542,6 +585,29 @@
       return model.benchmarks[benchmarkId].score;
     }
     
+    // Normalize score to 0-100 range based on benchmark type
+    function normalizeScore(score, benchmarkId) {
+      const bm = DATA.benchmarks[benchmarkId];
+      if (!bm) return score;
+      
+      if (bm.type === 'elo') {
+        // Normalize ELO: 1000 = 0%, 1500 = 100%
+        return Math.max(0, Math.min(100, (score - 1000) / 5));
+      }
+      // Percentage benchmarks are already 0-100
+      return score;
+    }
+    
+    function getDisplayScore(score, benchmarkId) {
+      const bm = DATA.benchmarks[benchmarkId];
+      if (!bm) return `${score}`;
+      
+      if (bm.type === 'elo') {
+        return `${score} ELO`;
+      }
+      return `${score}%`;
+    }
+    
     function updateAll() {
       updateCalcCards();
       renderCalculator();
@@ -565,13 +631,13 @@
         const score = getScore(localModel, benchmarkId) || 0;
         const tokPerDay = perf.tokensPerSec * 3600 * hours;
         const tokTotal = tokPerDay * 365 * years;
-        const adjusted = tokTotal * (score / 100);
+        const adjusted = tokTotal * (normalizeScore(score, benchmarkId) / 100);
         const value = adjusted / hw.price;
         
         document.getElementById('calcLocalSteps').innerHTML = `
           <div class="calc-step"><span class="num">${perf.tokensPerSec}</span> tok/s × 3600 × <span class="num">${hours}</span>h = <span class="result">${formatNum(tokPerDay)}</span> tok/day</div>
           <div class="calc-step"><span class="num">${formatNum(tokPerDay)}</span> × 365 × <span class="num">${years}</span>y = <span class="result">${formatNum(tokTotal)}</span> total</div>
-          <div class="calc-step"><span class="num">${formatNum(tokTotal)}</span> × <span class="num">${score}%</span> quality = <span class="result">${formatNum(adjusted)}</span></div>
+          <div class="calc-step"><span class="num">${formatNum(tokTotal)}</span> × <span class="num">${getDisplayScore(score, benchmarkId)}</span> quality = <span class="result">${formatNum(adjusted)}</span></div>
           <div class="calc-step"><span class="num">${formatNum(adjusted)}</span> ÷ $<span class="num">${hw.price}</span> = <span class="result">${formatNum(value)}</span></div>
         `;
         document.getElementById('calcLocalValue').textContent = formatNum(value);
@@ -587,12 +653,12 @@
           const score = getScore(model, benchmarkId) || 0;
           const tokTotal = sub.tokensPerDay * 365 * years;
           const totalCost = sub.monthlyPrice * 12 * years;
-          const adjusted = tokTotal * (score / 100);
+          const adjusted = tokTotal * (normalizeScore(score, benchmarkId) / 100);
           const value = adjusted / totalCost;
           
           document.getElementById('calcSubSteps').innerHTML = `
             <div class="calc-step"><span class="num">${formatNum(sub.tokensPerDay)}</span> tok/day × 365 × <span class="num">${years}</span>y = <span class="result">${formatNum(tokTotal)}</span></div>
-            <div class="calc-step"><span class="num">${formatNum(tokTotal)}</span> × <span class="num">${score}%</span> quality = <span class="result">${formatNum(adjusted)}</span></div>
+            <div class="calc-step"><span class="num">${formatNum(tokTotal)}</span> × <span class="num">${getDisplayScore(score, benchmarkId)}</span> quality = <span class="result">${formatNum(adjusted)}</span></div>
             <div class="calc-step">$<span class="num">${sub.monthlyPrice}</span>/mo × 12 × <span class="num">${years}</span>y = $<span class="result">${totalCost}</span></div>
             <div class="calc-step"><span class="num">${formatNum(adjusted)}</span> ÷ $<span class="num">${totalCost}</span> = <span class="result">${formatNum(value)}</span></div>
           `;
@@ -606,11 +672,11 @@
       if (apiModel && apiModel.api) {
         const score = getScore(apiModel, benchmarkId) || 0;
         const tokPerDollar = 1000000 / apiModel.api.inputPer1M;
-        const value = tokPerDollar * (score / 100);
+        const value = tokPerDollar * (normalizeScore(score, benchmarkId) / 100);
         
         document.getElementById('calcApiSteps').innerHTML = `
           <div class="calc-step">1,000,000 ÷ $<span class="num">${apiModel.api.inputPer1M}</span>/M = <span class="result">${formatNum(tokPerDollar)}</span> tok/$</div>
-          <div class="calc-step"><span class="num">${formatNum(tokPerDollar)}</span> × <span class="num">${score}%</span> quality = <span class="result">${formatNum(value)}</span></div>
+          <div class="calc-step"><span class="num">${formatNum(tokPerDollar)}</span> × <span class="num">${getDisplayScore(score, benchmarkId)}</span> quality = <span class="result">${formatNum(value)}</span></div>
         `;
         document.getElementById('calcApiValue').textContent = formatNum(value);
       }
@@ -635,12 +701,14 @@
         // API value
         if (model.api) {
           const tokPerDollar = 1000000 / model.api.inputPer1M;
-          const value = tokPerDollar * (score / 100);
+          const value = tokPerDollar * (normalizeScore(score, benchmarkId) / 100);
+          const apiProvider = model.api.provider ? ` (${model.api.provider})` : '';
           results.push({
-            model: model.name,
+            model: model.name + apiProvider,
             type: 'api',
             value: value,
             score: score,
+            displayScore: getDisplayScore(score, benchmarkId),
             details: `$${model.api.inputPer1M}/M input`
           });
         }
@@ -649,12 +717,13 @@
         if (model.local && model.local[hwId]) {
           const perf = model.local[hwId];
           const tokTotal = perf.tokensPerSec * 3600 * hours * 365 * years;
-          const value = (tokTotal / hw.price) * (score / 100);
+          const value = (tokTotal / hw.price) * (normalizeScore(score, benchmarkId) / 100);
           results.push({
             model: model.name,
             type: 'local',
             value: value,
             score: score,
+            displayScore: getDisplayScore(score, benchmarkId),
             details: `${perf.tokensPerSec} tok/s on ${hw.name}`
           });
         }
@@ -665,13 +734,14 @@
             if (!sub.tokensPerDay) return;
             const tokTotal = sub.tokensPerDay * 365 * years;
             const cost = sub.monthlyPrice * 12 * years;
-            const value = (tokTotal / cost) * (score / 100);
+            const value = (tokTotal / cost) * (normalizeScore(score, benchmarkId) / 100);
             results.push({
               model: model.name,
               type: 'subscription',
               subName: sub.name,
               value: value,
               score: score,
+              displayScore: getDisplayScore(score, benchmarkId),
               confidence: sub.confidence,
               details: `$${sub.monthlyPrice}/mo`
             });
@@ -690,18 +760,20 @@
         const pct = (r.value / maxVal) * 100;
         const typeColor = r.type === 'api' ? '#ff6b6b' : r.type === 'local' ? '#00ff88' : '#7c3aed';
         const typeIcon = r.type === 'api' ? '🔌' : r.type === 'local' ? '🖥️' : '💳';
+        const typeLabel = r.type === 'api' ? 'API' : r.type === 'local' ? 'Local' : 'Sub';
         const confWarn = r.confidence === 'low' ? ' ⚠️' : '';
-        const label = r.subName ? `${r.model} (${r.subName})` : r.model;
+        const label = r.subName ? `${r.subName}` : r.model;
         
         html += `
           <div style="display:flex;align-items:center;gap:1rem">
-            <div style="width:200px;font-size:0.75rem">${typeIcon} ${label}${confWarn}</div>
+            <div style="width:60px;font-size:0.65rem;color:${typeColor};font-weight:600">${typeIcon} ${typeLabel}</div>
+            <div style="width:160px;font-size:0.75rem">${label}${confWarn}</div>
             <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:4px;height:24px;overflow:hidden">
               <div style="width:${pct}%;height:100%;background:${typeColor};display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:0.7rem;font-weight:600">
                 ${formatNum(r.value)}
               </div>
             </div>
-            <div style="width:150px;font-size:0.65rem;color:#888">${r.details} (${r.score}%)</div>
+            <div style="width:150px;font-size:0.65rem;color:#888">${r.details} (${r.displayScore})</div>
           </div>`;
       });
       
@@ -713,7 +785,7 @@
       const hwId = document.getElementById('hardware').value;
       const hours = parseFloat(document.getElementById('hoursPerDay').value) || 16;
       const years = parseInt(document.getElementById('periodYears').value);
-      const benchmarkId = document.getElementById('benchmark').value;
+      const benchmarkId = document.getElementById('chartBenchmark').value;
       const typeFilter = document.getElementById('chartType').value;
       const providerFilter = document.getElementById('chartProvider').value;
       const hw = DATA.hardware[hwId];
@@ -733,27 +805,39 @@
         // API
         if (model.api && (typeFilter === 'all' || typeFilter === 'api')) {
           const tokPerDollar = 1000000 / model.api.inputPer1M;
-          const value = tokPerDollar * (score / 100);
+          const value = tokPerDollar * (normalizeScore(score, benchmarkId) / 100);
           dataPoints.push({
             name: model.name,
             provider: model.provider,
             type: 'api',
             date: date,
-            value: value
+            value: value,
+            calc: {
+              step1: `1M ÷ $${model.api.inputPer1M} = ${formatNum(tokPerDollar)} tok/$`,
+              step2: `${formatNum(tokPerDollar)} × ${getDisplayScore(score, benchmarkId)} = ${formatNum(value)}`
+            }
           });
         }
         
         // Local
         if (model.local && model.local[hwId] && (typeFilter === 'all' || typeFilter === 'local')) {
           const perf = model.local[hwId];
-          const tokTotal = perf.tokensPerSec * 3600 * hours * 365 * years;
-          const value = (tokTotal / hw.price) * (score / 100);
+          const tokPerDay = perf.tokensPerSec * 3600 * hours;
+          const tokTotal = tokPerDay * 365 * years;
+          const adjusted = tokTotal * (normalizeScore(score, benchmarkId) / 100);
+          const value = adjusted / hw.price;
           dataPoints.push({
             name: `${model.name} (local)`,
             provider: model.provider,
             type: 'local',
             date: date,
-            value: value
+            value: value,
+            calc: {
+              step1: `${perf.tokensPerSec} tok/s × 3600 × ${hours}h = ${formatNum(tokPerDay)}/day`,
+              step2: `${formatNum(tokPerDay)} × 365 × ${years}y = ${formatNum(tokTotal)}`,
+              step3: `${formatNum(tokTotal)} × ${getDisplayScore(score, benchmarkId)} = ${formatNum(adjusted)}`,
+              step4: `${formatNum(adjusted)} ÷ $${hw.price} = ${formatNum(value)}`
+            }
           });
         }
         
@@ -763,14 +847,21 @@
             if (!sub.tokensPerDay) return;
             const tokTotal = sub.tokensPerDay * 365 * years;
             const cost = sub.monthlyPrice * 12 * years;
-            const value = (tokTotal / cost) * (score / 100);
+            const adjusted = tokTotal * (normalizeScore(score, benchmarkId) / 100);
+            const value = adjusted / cost;
             dataPoints.push({
               name: `${sub.name}`,
               provider: model.provider,
               type: 'subscription',
               date: date,
               value: value,
-              estimated: sub.confidence === 'low'
+              estimated: sub.confidence === 'low',
+              calc: {
+                step1: `${formatNum(sub.tokensPerDay)}/day × 365 × ${years}y = ${formatNum(tokTotal)}`,
+                step2: `${formatNum(tokTotal)} × ${getDisplayScore(score, benchmarkId)} = ${formatNum(adjusted)}`,
+                step3: `$${sub.monthlyPrice}/mo × 12 × ${years}y = $${cost}`,
+                step4: `${formatNum(adjusted)} ÷ $${cost} = ${formatNum(value)}`
+              }
             });
           });
         }
@@ -816,7 +907,20 @@
             y: { type: 'logarithmic', title: { display: true, text: 'Quality-Adjusted Tokens per $', color: '#888' }, ticks: { color: '#888', callback: v => formatNum(v) }, grid: { color: 'rgba(255,255,255,0.05)' } }
           },
           plugins: {
-            tooltip: { callbacks: { label: ctx => `${ctx.raw.name}: ${formatNum(ctx.raw.y)}` } },
+            tooltip: {
+              callbacks: {
+                title: ctx => ctx[0].raw.name + (ctx[0].raw.estimated ? ' ⚠️' : ''),
+                label: ctx => {
+                  const d = ctx.raw;
+                  const lines = [`Value: ${formatNum(d.value)} tok/$`];
+                  if (d.calc) {
+                    lines.push('─────────');
+                    Object.values(d.calc).forEach(step => lines.push(step));
+                  }
+                  return lines;
+                }
+              }
+            },
             legend: { display: true, labels: { color: '#888', usePointStyle: true } }
           }
         }
