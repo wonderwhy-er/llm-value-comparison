@@ -138,6 +138,36 @@
         /* Results ranking */
         .results-section { margin-top: 1.5rem; }
         .results-section h3 { margin-bottom: 1rem; font-size: 0.9rem; color: #888; }
+        .calc-row { position: relative; }
+        .calc-row[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 6px;
+            z-index: 10;
+            max-width: 520px;
+            padding: 0.6rem 0.75rem;
+            border-radius: 8px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #cfcfcf;
+            font-size: 0.65rem;
+            line-height: 1.5;
+            white-space: pre-line;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+        .calc-row[data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 100%;
+            margin-top: -4px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent rgba(10, 10, 15, 0.95) transparent;
+            z-index: 11;
+        }
     </style>
 </head>
 <body>
@@ -162,7 +192,8 @@
         <div id="tab-calculator" class="tab-content active">
             <div class="warning-box">
                 <strong>⚠️ Subscription data is estimated!</strong> 
-                Providers don't publish exact token limits. See Data tab for sources and confidence levels.
+                Providers don't publish exact token limits. 
+                <a href="data/methodology.html" style="color:#ff6b6b; text-decoration:underline;" target="_blank">Learn how we estimate these limits.</a>
             </div>
             
             <div class="global-settings">
@@ -342,7 +373,7 @@
     const PROVIDER_COLORS = {
       'OpenAI': '#10a37f', 'Anthropic': '#d4a574', 'Google': '#4285f4',
       'DeepSeek': '#ff6b6b', 'Meta': '#0668E1', 'Alibaba': '#ff6a00',
-      'Mistral': '#ff7000', 'Microsoft': '#00bcf2',
+      'Mistral': '#ff7000', 'Microsoft': '#00bcf2', 'Z.ai': '#00b3ff',
     };
     
     function formatNum(n) {
@@ -351,6 +382,14 @@
       if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
       if (n >= 1e3) return (n / 1e3).toFixed(0) + 'K';
       return n.toFixed(0);
+    }
+
+    function escapeAttr(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
     }
     
     // Load all data from JSON files
@@ -756,7 +795,8 @@
         if (model.api) {
           const weightedPrice = getWeightedApiPrice(model.api);
           const tokPerDollar = 1000000 / weightedPrice;
-          const value = tokPerDollar * (normalizeScore(score, benchmarkId) / 100);
+          const normalizedPct = normalizeScore(score, benchmarkId);
+          const value = tokPerDollar * (normalizedPct / 100);
           const apiProvider = model.api.provider ? ` (${model.api.provider})` : '';
           results.push({
             model: model.name + apiProvider,
@@ -764,22 +804,35 @@
             value: value,
             score: score,
             displayScore: getDisplayScore(score, benchmarkId),
-            details: `$${weightedPrice.toFixed(2)}/M avg`
+            details: `$${weightedPrice.toFixed(2)}/M avg`,
+            tooltip: [
+              `Weighted price: $${model.api.inputPer1M}×75% + $${model.api.outputPer1M}×25% = $${weightedPrice.toFixed(2)}/M`,
+              `Tokens per $: 1,000,000 ÷ $${weightedPrice.toFixed(2)} = ${formatNum(tokPerDollar)}`,
+              `Quality-adjusted: ${formatNum(tokPerDollar)} × ${normalizedPct.toFixed(1)}% = ${formatNum(value)} tok/$`
+            ].join('\n')
           });
         }
         
         // Local value
         if (model.local && model.local[hwId]) {
           const perf = model.local[hwId];
-          const tokTotal = perf.tokensPerSec * 3600 * hours * 365 * years;
-          const value = (tokTotal / hw.price) * (normalizeScore(score, benchmarkId) / 100);
+          const tokPerDay = perf.tokensPerSec * 3600 * hours;
+          const tokTotal = tokPerDay * 365 * years;
+          const normalizedPct = normalizeScore(score, benchmarkId);
+          const value = (tokTotal / hw.price) * (normalizedPct / 100);
           results.push({
             model: model.name,
             type: 'local',
             value: value,
             score: score,
             displayScore: getDisplayScore(score, benchmarkId),
-            details: `${perf.tokensPerSec} tok/s on ${hw.name}`
+            details: `${perf.tokensPerSec} tok/s on ${hw.name}`,
+            tooltip: [
+              `Tokens/day: ${perf.tokensPerSec} tok/s × ${hours}h = ${formatNum(tokPerDay)}`,
+              `Total tokens: ${formatNum(tokPerDay)} × 365 × ${years}y = ${formatNum(tokTotal)}`,
+              `Quality-adjusted: ${formatNum(tokTotal)} × ${normalizedPct.toFixed(1)}% = ${formatNum(value * hw.price)}`,
+              `Per $ (hw $${hw.price}): ${formatNum(value * hw.price)} ÷ $${hw.price} = ${formatNum(value)} tok/$`
+            ].join('\n')
           });
         }
         
@@ -789,7 +842,8 @@
             if (!sub.tokensPerDay) return;
             const tokTotal = sub.tokensPerDay * 365 * years;
             const cost = sub.monthlyPrice * 12 * years;
-            const value = (tokTotal / cost) * (normalizeScore(score, benchmarkId) / 100);
+            const normalizedPct = normalizeScore(score, benchmarkId);
+            const value = (tokTotal / cost) * (normalizedPct / 100);
             results.push({
               model: model.name,
               type: 'subscription',
@@ -798,7 +852,14 @@
               score: score,
               displayScore: getDisplayScore(score, benchmarkId),
               confidence: sub.confidence,
-              details: `$${sub.monthlyPrice}/mo`
+              details: `$${sub.monthlyPrice}/mo`,
+              tooltip: [
+                `Tokens/day: ${formatNum(sub.tokensPerDay)} (limit)`,
+                `Total tokens: ${formatNum(sub.tokensPerDay)} × 365 × ${years}y = ${formatNum(tokTotal)}`,
+                `Total cost: $${sub.monthlyPrice}/mo × 12 × ${years}y = $${cost}`,
+                `Quality-adjusted: ${formatNum(tokTotal)} × ${normalizedPct.toFixed(1)}% = ${formatNum(value * cost)}`,
+                `Per $: ${formatNum(value * cost)} ÷ $${cost} = ${formatNum(value)} tok/$`
+              ].join('\n')
             });
           });
         }
@@ -818,9 +879,10 @@
         const typeLabel = r.type === 'api' ? 'API' : r.type === 'local' ? 'Local' : 'Sub';
         const confWarn = r.confidence === 'low' ? ' ⚠️' : '';
         const label = r.subName ? `${r.subName} → ${r.model}` : r.model;
+        const tooltipAttr = r.tooltip ? ` data-tooltip="${escapeAttr(r.tooltip)}"` : '';
         
         html += `
-          <div style="display:flex;align-items:center;gap:1rem">
+          <div class="calc-row"${tooltipAttr} style="display:flex;align-items:center;gap:1rem">
             <div style="width:60px;font-size:0.65rem;color:${typeColor};font-weight:600">${typeIcon} ${typeLabel}</div>
             <div style="width:220px;font-size:0.75rem">${label}${confWarn}</div>
             <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:4px;height:24px;overflow:hidden">

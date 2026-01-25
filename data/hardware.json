@@ -34,6 +34,14 @@
     "year": 2023,
     "source": "https://www.apple.com/shop/buy-mac/macbook-pro"
   },
+  "mac_m4_48gb": {
+    "name": "Mac M4 48GB",
+    "price": 3500,
+    "vram": 48,
+    "year": 2024,
+    "notes": "User-reported price for MacBook M4 48GB configuration.",
+    "source": "https://www.apple.com/shop/buy-mac/macbook-pro"
+  },
   "mac_m4_max_128gb": {
     "name": "Mac M4 Max 128GB",
     "price": 5000,

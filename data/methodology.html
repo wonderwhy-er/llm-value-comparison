@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methodology - LLM Value Comparison</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+        body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.6;
+            padding: 3rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { color: #00ff88; border-bottom: 2px solid #00ff88; padding-bottom: 0.5rem; }
+        h2 { color: #ffc800; margin-top: 2rem; }
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        code { background: #1a1a2e; color: #ff6b6b; padding: 0.2rem 0.4rem; border-radius: 4px; }
+        a { color: #88f; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .back-link { display: inline-block; margin-bottom: 2rem; color: #00ff88; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+        th { background: rgba(0,255,136,0.1); text-align: left; padding: 0.75rem; color: #00ff88; }
+        td { padding: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-link">← Back to Calculator</a>
+    
+    <h1>📐 Subscription Estimation Methodology</h1>
+    <p>Because AI providers (OpenAI, Anthropic, Google) do not publish exact daily token budgets for their "unlimited" or "message-capped" plans, this project uses an empirical estimation model based on 2025/2026 research.</p>
+
+    <div class="card">
+        <h2>1. The "Turn" Standard (6,400 Tokens)</h2>
+        <p>We standardize a single "message" or "turn" at <strong>6,400 tokens</strong>.</p>
+        <ul>
+            <li><strong>Source:</strong> <a href="https://a16z.com/state-of-ai/" target="_blank">OpenRouter 2025 State of AI Report</a></li>
+            <li><strong>Why:</strong> Based on a study of 100 trillion real-world tokens, the average prompt length has quadrupled to ~6,000 tokens while completions average ~400 tokens. This reflects modern "context-heavy" usage like coding and agentic workflows.</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>2. Capacity Scaling (The 10x Rule)</h2>
+        <p>We use a <strong>10x capacity multiplier</strong> to estimate "Unlimited" or "Pro" tiers compared to "Plus" tiers.</p>
+        <ul>
+            <li><strong>Logic:</strong> OpenAI provides exactly 10x capacity for high-compute features in the Pro tier ($200) compared to Plus ($20).</li>
+            <li><strong>Evidence:</strong> Plus users get 25 Deep Research queries/mo, while Pro users get 250 queries/mo.</li>
+        </ul>
+    </div>
+
+    <h2>3. Daily Token Limits</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Subscription</th>
+                <th>Price</th>
+                <th>Daily Tokens</th>
+                <th>Derivation</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>ChatGPT Plus</strong></td>
+                <td>$20</td>
+                <td>8,192,000</td>
+                <td>160 msgs/3hr × 8 windows × 6,400 tok</td>
+            </tr>
+            <tr>
+                <td><strong>ChatGPT Pro</strong></td>
+                <td>$200</td>
+                <td>81,920,000</td>
+                <td>Plus Daily Tokens × 10 (Linear scaling)</td>
+            </tr>
+            <tr>
+                <td><strong>Claude Pro</strong></td>
+                <td>$20</td>
+                <td>640,000</td>
+                <td>100 msgs/day × 6,400 tok</td>
+            </tr>
+            <tr>
+                <td><strong>Gemini Advanced</strong></td>
+                <td>$20</td>
+                <td>640,000</td>
+                <td>100 msgs/day × 6,400 tok</td>
+            </tr>
+            <tr>
+                <td><strong>Claude Max 5×</strong></td>
+                <td>$100</td>
+                <td>3,200,000</td>
+                <td>640,000 (Pro base) × 5</td>
+            </tr>
+            <tr>
+                <td><strong>Claude Max 20×</strong></td>
+                <td>$200</td>
+                <td>12,800,000</td>
+                <td>640,000 (Pro base) × 20</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <footer style="margin-top: 4rem; font-size: 0.7rem; color: #666; text-align: center;">
+        Last Updated: January 25, 2026 • LLM Value Comparison Project
+    </footer>
+</body>
+</html>

@@ -29,18 +29,18 @@
       "claude_max_5x": {
         "name": "Claude Max 5×",
         "monthlyPrice": 100,
-        "tokensPerDay": 1000000,
+        "tokensPerDay": 3200000,
         "confidence": "low",
-        "notes": "Full Opus access with Max subscription",
-        "source": "https://www.anthropic.com/claude/max"
+        "notes": "5× Pro limits. Avg turn 6,400 tokens (OpenRouter 2025 Study).",
+        "source": "https://a16z.com/state-of-ai/"
       },
       "claude_max_20x": {
         "name": "Claude Max 20×",
         "monthlyPrice": 200,
-        "tokensPerDay": 4000000,
+        "tokensPerDay": 12800000,
         "confidence": "low",
-        "notes": "20× Pro limits",
-        "source": "https://www.anthropic.com/claude/max"
+        "notes": "20× Pro limits. Avg turn 6,400 tokens (OpenRouter 2025 Study).",
+        "source": "https://a16z.com/state-of-ai/"
       }
     }
   },
@@ -78,10 +78,10 @@
       "claude_pro": {
         "name": "Claude Pro",
         "monthlyPrice": 20,
-        "tokensPerDay": 200000,
+        "tokensPerDay": 640000,
         "confidence": "low",
-        "notes": "Estimated ~100 messages/day × 2000 tokens. Rolling 5-hour windows.",
-        "source": "https://support.anthropic.com/en/articles/8325610-how-does-the-usage-limit-work-on-claude-ai"
+        "notes": "Estimated ~100 messages/day. Per OpenRouter 2025 study, avg turn is 6,400 tokens (6k in / 400 out).",
+        "source": "https://a16z.com/state-of-ai/"
       }
     }
   },
@@ -151,12 +151,44 @@
       "gemini_advanced": {
         "name": "Gemini Advanced",
         "monthlyPrice": 20,
-        "tokensPerDay": 200000,
+        "tokensPerDay": 640000,
         "confidence": "low",
-        "notes": "100 prompts/day limit. Deep reasoning uses 20+ simple msg equivalent.",
-        "source": "https://one.google.com/about/ai-premium"
+        "notes": "Estimated 100 prompts/day. Per OpenRouter 2025 study, avg turn is 6,400 tokens (6k in / 400 out).",
+        "source": "https://a16z.com/state-of-ai/"
       }
     }
+  },
+  "glm-4.7-flash": {
+    "name": "GLM-4.7 Flash",
+    "provider": "Z.ai",
+    "releaseDate": "2026-01-19",
+    "modelCard": "https://huggingface.co/zai-org/GLM-4.7-Flash",
+    "benchmarks": {
+      "gpqa_diamond": {
+        "score": 75.2,
+        "source": "https://huggingface.co/zai-org/GLM-4.7-Flash"
+      },
+      "swe_bench": {
+        "score": 59.2,
+        "source": "https://huggingface.co/zai-org/GLM-4.7-Flash"
+      }
+    },
+    "api": {
+      "inputPer1M": 0.07,
+      "outputPer1M": 0.40,
+      "source": "https://llm-stats.com/models/glm-4.7-flash",
+      "provider": "Z.ai"
+    },
+    "local": {
+      "mac_m4_48gb": {
+        "tokensPerSec": 16,
+        "quantization": "unknown",
+        "vramRequired": 48,
+        "notes": "User test on MacBook M4 48GB.",
+        "source": "user-reported"
+      }
+    },
+    "subscriptions": null
   },
   "gpt-4o": {
     "name": "GPT-4o",
@@ -192,10 +224,18 @@
       "chatgpt_plus": {
         "name": "ChatGPT Plus",
         "monthlyPrice": 20,
-        "tokensPerDay": 1280000,
+        "tokensPerDay": 8192000,
         "confidence": "medium",
-        "notes": "160 msgs/3hr window × 8 windows × 1000 tok/msg. Research shows $0.26-0.53/M effective.",
-        "source": "https://community.openai.com/t/chatgpt-plus-user-limits-valid-for-2025/1149656"
+        "notes": "160 msgs/3hr window. Per OpenRouter 2025 study, avg turn is 6,400 tokens (6k in / 400 out).",
+        "source": "https://a16z.com/state-of-ai/"
+      },
+      "chatgpt_pro": {
+        "name": "ChatGPT Pro",
+        "monthlyPrice": 200,
+        "tokensPerDay": 81920000,
+        "confidence": "medium",
+        "notes": "Unlimited access. Scaled 10x from Plus based on Deep Research query parity (25 vs 250).",
+        "source": "https://openai.com/chatgpt/pricing/"
       }
     }
   },
@@ -328,10 +368,10 @@
       "chatgpt_pro": {
         "name": "ChatGPT Pro",
         "monthlyPrice": 200,
-        "tokensPerDay": null,
-        "confidence": "low",
-        "notes": "Claims unlimited but has soft limits. OpenAI confirmed operating at loss.",
-        "source": "https://help.openai.com/en/articles/9793128-what-is-chatgpt-pro"
+        "tokensPerDay": 81920000,
+        "confidence": "medium",
+        "notes": "Unlimited access. Scaled 10x from Plus based on Deep Research query parity (25 vs 250).",
+        "source": "https://openai.com/chatgpt/pricing/"
       }
     }
   },
@@ -416,18 +456,18 @@
       "claude_max_5x": {
         "name": "Claude Max 5×",
         "monthlyPrice": 100,
-        "tokensPerDay": 1000000,
+        "tokensPerDay": 3200000,
         "confidence": "low",
-        "notes": "Full Opus 4.5 access with Max subscription",
-        "source": "https://www.anthropic.com/claude/max"
+        "notes": "5× Pro limits. Avg turn 6,400 tokens (OpenRouter 2025 Study).",
+        "source": "https://a16z.com/state-of-ai/"
       },
       "claude_max_20x": {
         "name": "Claude Max 20×",
         "monthlyPrice": 200,
-        "tokensPerDay": 4000000,
+        "tokensPerDay": 12800000,
         "confidence": "low",
-        "notes": "20× Pro limits",
-        "source": "https://www.anthropic.com/claude/max"
+        "notes": "20× Pro limits. Avg turn 6,400 tokens (OpenRouter 2025 Study).",
+        "source": "https://a16z.com/state-of-ai/"
       }
     }
   },
@@ -465,10 +505,10 @@
       "gemini_advanced": {
         "name": "Google AI Ultra",
         "monthlyPrice": 20,
-        "tokensPerDay": 250000,
+        "tokensPerDay": 640000,
         "confidence": "low",
-        "notes": "Priority access to Gemini 3 Pro",
-        "source": "https://one.google.com/about/ai-premium"
+        "notes": "Priority access. Avg turn 6,400 tokens (OpenRouter 2025 Study).",
+        "source": "https://a16z.com/state-of-ai/"
       }
     }
   },
@@ -538,17 +578,17 @@
       "chatgpt_plus": {
         "name": "ChatGPT Plus",
         "monthlyPrice": 20,
-        "tokensPerDay": 1280000,
+        "tokensPerDay": 8192000,
         "confidence": "medium",
-        "notes": "GPT-5.2 Instant available, Thinking requires Pro",
-        "source": "https://openai.com/chatgpt/pricing/"
+        "notes": "GPT-5.2 Instant. Per OpenRouter 2025 study, avg turn is 6,400 tokens (6k in / 400 out).",
+        "source": "https://a16z.com/state-of-ai/"
       },
       "chatgpt_pro": {
         "name": "ChatGPT Pro",
         "monthlyPrice": 200,
-        "tokensPerDay": 5000000,
-        "confidence": "low",
-        "notes": "Full GPT-5.2 Pro access with xhigh reasoning",
+        "tokensPerDay": 81920000,
+        "confidence": "medium",
+        "notes": "Unlimited access. Scaled 10x from Plus based on Deep Research query parity (25 vs 250).",
         "source": "https://openai.com/chatgpt/pricing/"
       }
     }
