@@ -49,6 +49,14 @@
     "year": 2024,
     "source": "https://www.apple.com/shop/buy-mac/macbook-pro"
   },
+  "framework_desktop_128gb": {
+    "name": "Framework Desktop (Ryzen AI Max+ 395, 128GB)",
+    "price": 3170,
+    "vram": 128,
+    "year": 2025,
+    "notes": "Converted from €2700 at ~1.1738 USD/EUR (30-day avg).",
+    "source": "https://wise.com/us/currency-converter/eur-to-usd-rate?amount=2700"
+  },
   "dual_rtx_3090": {
     "name": "2× RTX 3090",
     "price": 3000,

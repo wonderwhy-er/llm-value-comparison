@@ -190,6 +190,32 @@
     },
     "subscriptions": null
   },
+  "gpt-oss-120b": {
+    "name": "GPT-OSS 120B",
+    "provider": "OpenAI",
+    "releaseDate": "2025-08-05",
+    "modelCard": "https://openai.com/index/introducing-gpt-oss/",
+    "benchmarks": {
+      "gpqa_diamond": {
+        "score": 80,
+        "source": "https://www.amd.com/en/blogs/2026/amd-ryzen-ai-max-ai-pcs-deliver-exceptional-intelligence.html"
+      },
+      "mmlu": {
+        "score": 90,
+        "source": "https://www.amd.com/en/blogs/2026/amd-ryzen-ai-max-ai-pcs-deliver-exceptional-intelligence.html"
+      }
+    },
+    "api": null,
+    "local": {
+      "framework_desktop_128gb": {
+        "tokensPerSec": 33,
+        "quantization": "MXFP4 (GGUF)",
+        "notes": "Community benchmark on Framework Desktop; Vulkan backend, LM Studio/llama.cpp.",
+        "source": "https://community.frame.work/t/tracking-will-the-ai-max-395-128gb-be-able-to-run-gpt-oss-120b/73280"
+      }
+    },
+    "subscriptions": null
+  },
   "gpt-4o": {
     "name": "GPT-4o",
     "provider": "OpenAI",
